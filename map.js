@@ -3,27 +3,41 @@ mapboxgl.accessToken = "pk.eyJ1IjoicmVwcmljZSIsImEiOiJjanA0eDRhNXIwbTk5M29wN2MwM
 $426Map = new function() {
 
     this.airports = [];
+    this.airportSource;
     this.map = undefined;
     this.markers = [];
-    this.paths= [];
+    this.paths = undefined;
     this.popups = [];
 
-    this.clear = () => {}
+    this.clear = () => {
+        this.map.removeLayer("paths");
+        for (let i = 0; i < this.markers.length; ++i) {
+            this.popups[i].remove();
+            this.markers[i].remove();
+        }
+    }
 
-    this.add_paths = function(id) {
+    this.draw_paths = () => {
 
-        if (this.airports == null || this.airports.length < 2) {
+        if (
+            this.airports == null
+            || this.airports.length < 1
+            || this.airportSource == null
+        ) {
             return false;
-        } else if (typeof(id) !== "number") {
-            return -1;
         }
 
         let arcs = {};
         const ARC_TICKS = 125;
+        // [[LONG_MIN, LAT_MIN], [LONG_MAX, LAT_MAX]]
+        let bounds = [
+            [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER],
+            [Number.MIN_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]
+        ];
         let features = [];
         let longLatSrc = {
-            "x": $426Airports.get_long(id),
-            "y": $426Airports.get_lat(id)
+            "x": $426Airports.get_long(this.airportSource),
+            "y": $426Airports.get_lat(this.airportSource)
         };
         let packet = {
             "type": "FeatureCollection",
@@ -41,19 +55,31 @@ $426Map = new function() {
             },
             "paint": {
                 "line-color": "#17A589",
-                "line-width": 5,
+                "line-width": 6,
             }
         }
 
         for (const ident of this.airports) {
 
-            if (ident === id) {
-                continue;
+            let lat = $426Airports.get_lat(ident);
+            let lng = $426Airports.get_long(ident);
+
+            if (lng < bounds[0][0]) {
+                bounds[0][0] = lng;
+            }
+            if (lng > bounds[1][0]) {
+                bounds[1][0] = lng;
+            }
+            if (lat < bounds[0][1]) {
+                bounds[0][1] = lat;
+            }
+            if (lat > bounds[1][1]) {
+                bounds[1][1] = lat;
             }
 
             let gen = new arc.GreatCircle(longLatSrc, {
-                "x": $426Airports.get_long(ident),
-                "y": $426Airports.get_lat(ident),
+                "x": lng,
+                "y": lat,
             });
             arcs[ident] = gen.Arc(ARC_TICKS, {"offset": 10}).geometries[0].coords, 
 
@@ -63,14 +89,21 @@ $426Map = new function() {
                     "coordinates": [],
                 },
                 "properties": {
-                    "idDest": ident,
-                    "idSrc": id
+                    "idDest": +ident,
+                    "idSrc": this.airportSource
                 },
                 "type": "Feature",
             });
 
         }
 
+        // The bound is too tight. Make it more loose.
+        bounds[0][0] = (bounds[0][0] < -175) ? bounds[0][0] : bounds[0][0] - 5;
+        bounds[0][1] = (bounds[0][1] < -88) ? bounds[0][1] : bounds[0][1] - 2;
+        bounds[1][0] = (bounds[1][0] > 175) ? bounds[1][0] : bounds[1][0] + 5;
+        bounds[1][1] = (bounds[1][1] > 88) ? bounds[1][1] : bounds[1][1] + 2;
+
+        this.map.fitBounds(bounds);
         this.map.addLayer(layer);
 
         let i = 0;
@@ -88,19 +121,27 @@ $426Map = new function() {
             }                
         }
         animate();
+        this.paths = layer;
 
-        //https://www.mapbox.com/mapbox.js/example/v1.0.0/animating-flight-paths/
+        return true;
 
     }
 
-    this.add_airports = function(airports) {
+    this.draw_airports = (airports, source) => {
 
         if (!Array.isArray(airports)) {
             return -1;
+        } else if (typeof(source) !== "boolean") {
+            return -2;
+        } else if (
+            typeof(airports[0]) !== "number"
+            && (typeof(airports[0]) === "string"
+            && airports[0].search(/^\d+$/) < 0)
+        ) {
+            return -3;
         }
 
-        for (let ident of airports) {
-
+        let f = (ident) => {
             // Order of these operations matter.
             let el = document.createElement("div");
             el.className = "marker-airport";
@@ -120,11 +161,50 @@ $426Map = new function() {
             marker.addTo(this.map);
             this.markers.push(marker);
             this.popups.push(popup);
-            this.airports.push(+ident);
 
         }
 
+        for (let ident of airports) {
+            f(ident);
+        }
+        if (source && this.airportSource != null) {
+            f(this.airportSource);
+        }
+
         return true;
+
+    }
+
+    this.get_airports = () => { return this.airports; }
+    this.get_airportSource = () => { return this.airportSource; }
+    this.get_map = () => () => { return this.map; }
+
+    this.set_airports = (airports) => {
+
+        if (!Array.isArray(airports)) {
+            return -1;
+        } else if (
+            typeof(airports[0]) !== "number"
+            && (typeof(airports[0]) === "string"
+            && airports[0].search(/^\d+$/) < 0)
+        ) {
+            return -2;
+        }
+
+        this.airports = airports;
+
+        return true;
+
+    }
+
+    this.set_airportSource = (source) => {
+        
+        if (typeof(source) === "number") {
+            this.airportSource = source;
+            return true;
+        } else {
+            return false;
+        }
 
     }
 
