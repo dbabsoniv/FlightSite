@@ -1,22 +1,28 @@
 //TODO REMEMBER TO CLEAN ALL USER INPUT.
-//TODO USER INPUT MUST HAVE A MAX LENGTH INPUT.
-//
-//FIXME All depature times are local time
-//FIXME Arrival times are local to depature city, NOT destination
-//city.
-//FIXME There are exteneral libraries to translate Lat/Long to a
-//timezone, but regardless we have to make some sort of decision.
+//TODO USER INPUT MUST HAVE A MAX LENGTH.
+///
+// WARNING: Sanitation should occur the moment the input is
+// collected. None of these objects and functions check for
+// sanitation. It's assumed sanitation occurs long before strings
+// get here.
 //
 // Because of promises, code outside of the database interface will
 // have to handle jqXHR status codes.
 // Whenever this is the case, the function should say how to do
 // this.
+/
+// This file is organized into 4 sections:
+//  (1) Constants
+//  (2) Global Objects
+//  (3) Local References
+//  (4) Helper Functions
+// Organization within a section is alphabetic, except for prototype
+// functions. Prototype functions must follow their object.
 //
-// Sanitation should occur the moment the input is collected. None
-// of these objects and functions check for sanitation. It's
-// assumed sanitation occurs long before strings get here.
-//
-// There must be some sort of guide to the website using a "?" icon.
+// Whenever "ID" is reference, it's referring to the database ID of
+// references. Other uses of "ID", like airline code, airport code, or
+// flight code, use some other terminology (like "code").
+
 
 $426_ROOT_URL = "http://comp426.cs.unc.edu:3001/"
 
@@ -24,27 +30,42 @@ $426_ROOT_URL = "http://comp426.cs.unc.edu:3001/"
 // if you don't set it to *something*.
 $426Airports = undefined;
 
+
+/*
+ *  Airline object
+ *
+ *  Parameters
+ *  ----------
+ *  oData   : Database data as a JavaScript object.
+ *            oData is NOT a string.
+ */
 $426Airline = function(oData) {
 
-    // Returns this airline's ID, an integer.
+    // Gets this airline's ID, an integer.
     this.get_id = () => { return oData["id"]; }
-    // Returns this airline's logoURL. It's just a filename.
+    // Gets this airline's logoURL, a string.
+    // It's just a filename.
     this.get_logoURL = () => { return oData["logo_url"]; }
-    // Return this airline's name.
+    // Return this airline's name, a string.
     this.get_name = () => { return oData["name"]; }
 
 }
-
-/*
- *
- */
+// see _db_retrieve_by_id()
 $426Airline.retrieve_by_id = function(id) {
     return _db_retrieve_by_id(id, "airlines/");
 }
 
+/*
+ *  Flight object
+ *
+ *  Parameters
+ *  ----------
+ *  oData   : Database data as a JavaScript object.
+ *            oData is NOT a string.
+ */
 $426Flight = function(oData) {
 
-    // Airline to be presented in the case of Endeavor Air is Delta.
+    // Gets the airline ID of this flight, a number (integer).
     this.get_airline_id = () => { 
         let stored = oData["airline_id"];
         if (stored === 83) {
@@ -54,37 +75,100 @@ $426Flight = function(oData) {
         }
     }
 
+    // Get the airport ID of the destination airport of this flight,
+    // a number (integer).
     this.get_arrival_id = () => { return oData["arrival_id"]; }
 
+    // Get the raw arrival time of this flight, a number.
+    // See $426Flight.time_string_to_raw()
     this.get_arrival_time_raw = () => {
         return $426Flight.time_string_to_raw(oData["arrives_at"]);
     }
 
-    this.get_arrival_time_string = () => { 
-        return oData["arrives_at"].replace(/^2000-01-01T/g, "").replace(/:00\.000Z$$/g, "");
+    /*
+     *  Gets the arrival time of this flight.
+     *
+     *  Returns
+     *  -------
+     *  time    : (String) Format of string returned is "00:00" in
+     *            24Hour time. Timezone is the timezone of the
+     *            source airport of this flight.
+     */
+    this.get_arrival_time_string = () => {
+        return oData["arrives_at"].replace(/^2000-01-01T/, "").replace(/:00\.000Z$/, "");
     }
 
+    // Get the airport ID of the source airport of this flight, a
+    // number (integer).
     this.get_departure_id = () => { return oData["departure_id"]; }
 
+    // Get the raw departure time of this flight, a number.
+    // See $426Flight.time_string_to_raw()
     this.get_departure_time_raw = () => {
         return $426Flight.time_string_to_raw(oData["departs_at"]);
     }
 
+    /*
+     *  Gets the arrival time of this flight.
+     *
+     *  Returns
+     *  -------
+     *  time    : (String) Format of string returned is "00:00" in
+     *            24Hour time. Timezone is the timezone of the
+     *            source airport of this flight.
+     */
     this.get_departure_time_string = () => {
-        return oData["departs_at"].replace(/^2000-01-01T/g, "").replace(/:00\.000Z$$/g, "");
+        return oData["departs_at"].replace(/^2000-01-01T/, "").replace(/:00\.000Z$/, "");
     }
 
-    // Use .toLocaleString() before putting it into HTML to include
-    // commas and such.
+    /*
+     *  Gets the distance of this flight in kilometers. 
+     *
+     *  Returns
+     *  -------
+     *  distance    : (Number - Integer) Distance of this flight in
+     *                kilometers.
+     *
+     *  Notes
+     *  -----
+     *  Use .toLocaleString() on the return before putting it into
+     *  HTML to use commas and such. (1,042 instead of 1042)
+     */ 
     this.get_distance_km = () => {
         return +oData["info"];
     }
 
+    /*
+     *  Gets the distance of this flight in miles 
+     *
+     *  Returns
+     *  -------
+     *  distance    : (Number - Integer) Distance of this flight in
+     *                miles.
+     *
+     *  Notes
+     *  -----
+     *  Use .toLocaleString() on the return before putting it into
+     *  HTML to use commas and such. (1,042 instead of 1042)
+     */ 
+
     this.get_distance_m = () => {
-        return Math.ceil(+oData["info"] * 0.621371)
+        return Math.ceil((+oData["info"]) * 0.621371)
     }
 
-    // Endeavor Air is an operator, not an airline.
+    /*
+     *  Gets the airline ID of the operator of this flight.
+     * 
+     *  Returns
+     *  -------
+     *  Operator    : (Number - Integer or null) Airline ID of the
+     *                operator of this flight.
+     *                If this flight does not have an operator, it is
+     *                instead operated by the airline is it
+     *                advertised under, this method returns null.
+     *                This method returns null for all flights except
+     *                those operated by Endeavor Air.
+     */ 
     this.get_operator_id = () => {
 
         if (oData["airline_id"] === 83) {
@@ -95,12 +179,54 @@ $426Flight = function(oData) {
 
     }
 
+    // Gets the plane ID of the plane used on this flight. 
     this.get_plane_id = () => { return oData["plane_id"]; }
-    // Includes airline code. e.g. "AA 155"
+
+    /*
+     *  Gets the flight number of this flight.
+     *
+     *  Returns 
+     *  -------
+     *  number  : (String) The flight number of this flight.
+     *            Flight number have the general form
+     *            "AIRLINE_CODE NUMBER", e.g. "AA 42".
+     *            This leads to some nonsensical codes for small
+     *            airlines who have numeric airline codes, but hey.
+     */ 
     this.get_number = () => { return oData["number"]; }
 
 }
-$426Flight.get_flights = function (id_src, id_dest, func) {
+/*
+ *  Retrieves all flights coming from a source airport to a
+ *  destination airport from the database.
+ *
+ *  Parameters
+ *  ----------
+ *  id_dest : (Number - Integer) Airport ID of destination airport.
+ *  id_src  : (Number - Integer) Airport ID of source airport
+ *  func    : (Function) Function which must handle asynchronous
+ *            returns.
+ *
+ *  Returns
+ *  -------
+ *  -1      : id_dest argument is not a number.
+ *  -2      : id_src argument is not a number.
+ *  -3      : func is not a function.
+ *  false   : There are no flights between these two airports.
+ *  true    : Flights between these airports exist. Asynchronous
+ *            request sent.
+ *
+ *  Potential Arguments to func
+ *  ---------------------------
+ *  -1  : Asynchronous request failed
+ *  obj : $426Flight object
+ *
+ *  Notes
+ *  -----
+ *  Only one argument will ever be passed to func at a time.
+ *
+ */
+$426Flight.retrieve_flights = function (id_dest, id_src, func) {
 
     if (typeof(id_src) !== "number") {
         return -1;
@@ -149,23 +275,54 @@ $426Flight.get_flights = function (id_src, id_dest, func) {
     return true;
 
 }
+// See _db_retrieve_by_id()
 $426Flight.retrieve_by_id = function(id) {
     return _db_retrieve_by_id(id, "flights/");
 }
 /*
- * A "raw" time is in base of minutes, so 15:15 is 915. 
+ *  Converts a time in a string format to a raw number.
+ *
+ *  A "raw" time is in base of minutes, so an input of "15:15" will
+ *  return 915. 
+ *
+ *  Parameters
+ *  ----------
+ *  time    : (String) Time in the format "00:00", 24Hour time.
+ *
+ *  Returns
+ *  -------
+ *  raw : (Number - Integer) Raw value of given time.
+ *  -1  : Argument time was not a string.
+ *  -2  : Argument time was not formatted correctly.
+ *
+ *  Notes
+ *  -----
+ *  This function has not been tested since it was last changed.
+ *
  */
 $426Flight.time_string_to_raw = function(time) {
 
     if (typeof(time) !== "string") {
-        return false;
+        return -1;
+    else if (time.search(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/) < 0) {
+        return -2;
     } else {
-        time = time.replace(/^2000-01-01T/g, "").replace(/:00\.000Z$$/g, "");
-        return parseInt(time.replace(/:\d{2}$/g, "")) * 60 + parseInt(time.replace(/^\d{2}:/g, ""));
+        let time = time.replace(/^2000-01-01T/, "").replace(/:00\.000Z$$/, "");
+        return parseInt(time.replace(/:\d{2}$/, "")) * 60 + parseInt(time.replace(/^\d{2}:/, ""));
     }
 
 }
 
+/*
+ *  Instance object
+ *
+ *  Instances represent a flight on any given date.
+ *
+ *  Parameters
+ *  ----------
+ *  oData   : Database data as a JavaScript object.
+ *            oData is NOT a string.
+ */
 $426Instance = function(oData) {
 
     oData["info"] = JSON.parse(oData["info"]);
@@ -173,6 +330,24 @@ $426Instance = function(oData) {
         oData["info"] = [];
     }
 
+    /*
+     *  Adds a reservation to this instance.
+     *
+     *  Parameters
+     *  ----------
+     *  seat    : (String) The seat reservation to add to this
+     *            instance. Must be of the form "07B". Letters P-Z
+     *            illegal. 
+     *
+     *  Returns
+     *  -------
+     *  -1      : Argument seat is not a string.
+     *  -2      : Argument seat is not formatted correctly.
+     *  false   : Seat could not be added because it has already
+     *            been reserved.
+     *  true    : Seat was added to this instance.
+     *
+     */ 
     this.add_seat = (seat) => {
 
         if (typeof(seat) !== "string") {
@@ -192,13 +367,50 @@ $426Instance = function(oData) {
 
     }
 
+    // Gets the date of this instance, a string.
+    // Dates are of the form "2020-11-31" 
     this.get_date = () => { return oData["date"]; }
+    // Gets the flight ID of this instance, a number (integer).
     this.get_flight_id = () => { return oData["flight_id"]; }
+    // Gets the ID of this instance, a number (integer). 
     this.get_id = () => { return oData["id"]; }
+    
+    /*
+     *  Gets the seats reserved in this instance.
+     *
+     *  Returns
+     *  -------
+     *  seats   : (Array of Strings) Seats reserved in this instance.
+     *
+     */ 
     this.get_seats = () => { return oData["info"]; }
 
     /*
-     * On return check jqXHR["status"] === 200. 
+     *  Patch the database resource representing this instance.
+     *
+     *  One would want to do this if the instance already exists,
+     *  but a new seat was successfully reserved. In that case the
+     *  instance has changed, and the database must be updated to
+     *  reflect that.
+     *
+     *  Returns
+     *  -------
+     *  jqXHR   : (jqXHR) Returns a jqXHR object of the asynchronous
+     *            request.
+     *
+     *  Notes
+     *  -----
+     *  The caller of this method must check if the
+     *  asynchronous request was successful, both in
+     *  done and fail filters.
+     *  If the call comes back into a fail filter, the
+     *  call was not successful.
+     *  If the call comes back into a done filter, the
+     *  caller of this method must check the following:
+     *  jqXHR["status"] === 200.
+     *  See other examples of this practice in this file
+     *  for further details
+     *
      */ 
     this.patch = () => {
 
@@ -230,16 +442,47 @@ $426Instance = function(oData) {
     }
 
 }
-
 /*
- * $426Instance.create() is "smart". If you attempt to create a new
- * instance that already exists, it hands you back that already
- * existant instance.
- * It does this silently though.
+ * Creates a new Instance resource in the database.
  *
- * //TODO February 31st is "legal" currently. More checks are necessary.
+ *  If an instance aligning with the request already exists in the
+ *  database, that is returned instead, and no new instance is
+ *  created. This behavior is silent.
+ *
+ *  Parameters
+ *  ----------
+ *  date    : (String) A string representing the date of the new
+ *            instance. Must be formatted as "2018-11-31"
+ *  idFlight: (Number - Integer) ID of the flight associated with
+ *             the new instance. 
+ *  seat    : (String) Seat to be reserved. A new instance cannot be
+ *            created unless one seat has been reserved.
+ *  func    : (Function) Function to handle asynchronous returns. 
+ *
+ *  Returns
+ *  -------
+ *  -1      : date is not a string.
+ *  -2      : idFlight is not a number
+ *  -3      : seat is not a string.
+ *  -4      : func is not a function.
+ *  -5      : date is not formatted correctly.
+ *  -6      : date is in the past or date is an impossible date,
+ *          e.g. "2018-50-50".
+ *  -7      : idFlight is not within the flight IDs of our database, and
+ *          therefore must be illegal.
+ *  -8      : seat is not formatted correctly. The formatting of a seat
+ *          is "07B". Letters P-Z are illegal.
+ *  jqXHR   : jqXHR object. Caller does not need to wait on object.
+ *            Argument func will handle asynchronous returns.
+ *
+ * Potential Arguments to func
+ * ---------------------------
+ *  -1  : Asynchronous request failed
+ *  obj : $426Instance object
+ *
  *
  */
+//FIXME February 31st is "legal" currently. More checks are necessary.
 $426Instance.create = function(date, idFlight, seat, func) {
 
     if (typeof(date) !== "string") {
@@ -1198,8 +1441,8 @@ let db_login = function() {
 
             data: {
                 user: {
-                    username: "BabsonPrice",
-                    password: "DaveRobert22"
+                    username: "",
+                    password: ""
                 }
             },
             datatype: "json",

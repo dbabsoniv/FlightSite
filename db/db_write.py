@@ -102,8 +102,8 @@ RADIUS_EARTH = 6371 # Kilometers
 ROUTES = []
 SESSION = requests.Session()
 SUBS = {"9E": "DL"}
-USER = "BabsonPrice"
-PW = "DaveRobert22" 
+USER = ""
+PW = "" 
 
 AIRLINES_BAD = (
     "2O", "3E", "3F", "3H", "4E", "4N", "4W", "4Y", "6L", "8D", "8P",
@@ -928,10 +928,4 @@ def update_routes():
 
 if __name__ == "__main__":
 
-    read_routes("routes_id_build.csv")
-    i = 1836
-    for route in ROUTES:
-        if route.id != i:
-            route.p()
-        i += 1 
-    print(i-1)
+    db_create()

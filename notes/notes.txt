@@ -1,0 +1,55 @@
+Database Notes:
+
+Do not make any PUT requests to airlines, airports, flights, and
+planes.
+
+The database I collected from distinguished Endeavor Air from
+Delta, but didn't do that for any other regional carriers. Thus
+this edge case could be easily handled and it's handled in a rather
+brute-force manner.
+Endeavor Air shouldn't be shown as an airline. It should be shown as
+an operator of a Delta flight.
+The Flight object understands this and has been designed to handle
+this.
+
+---------
+Git tips:
+
+Always pull before doing any push to do a merge if necessary.
+When implementing major features, consider branching.
+
+------
+What is script.js?
+
+index.html currently only imports script.js from our local directory.
+I've been creating this file on-demand when need be (when testing)
+by combining all working js files. I do this using the following
+terminal commands, which should work on a Mac:
+
+rm script.js
+cat *.js > script.js
+
+--------------------
+Implementation Notes:
+
+While building the database timezones were too difficult to
+implement. Thus both departure AND arrival times are in the timezone
+of the departure city.
+There are libraries that translate Lat/Longs into a time zone if we
+want to go that route.
+Regardless we need to come to some sort of plan with the times,
+which may just be using what is in the database.
+
+Should there be some sort of guide to the website using a "?" icon?
+Just an idea.
+
+-------------
+General Notes:
+
+Robert refers to himself as REPIII in code comments, if that
+weren't already obvious...
+
+REPIII cannot spell the word "departure". This has literally caused
+hours of bugs lol just a heads up for future bugs.
+
+Client link: http://comp426.cs.unc.edu:3001/client
