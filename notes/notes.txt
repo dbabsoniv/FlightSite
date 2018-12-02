@@ -1,7 +1,7 @@
 Database Notes:
 
 Do not make any PUT requests to airlines, airports, flights, and
-planes.
+planes. These resources should never be added to.
 
 The database I collected from distinguished Endeavor Air from
 Delta, but didn't do that for any other regional carriers. Thus
@@ -10,7 +10,7 @@ brute-force manner.
 Endeavor Air shouldn't be shown as an airline. It should be shown as
 an operator of a Delta flight.
 The Flight object understands this and has been designed to handle
-this.
+this case.
 
 ID Ranges (Inclusive):
 AIRLINE ID RANGE: [66, 107]
@@ -25,7 +25,7 @@ Always pull before doing any push to do a merge if necessary.
 When implementing major features, consider branching.
 
 ------
-What is script.js?
+What is script.js?:
 
 index.html currently only imports script.js from our local directory.
 I've been creating this file on-demand when need be (when testing)
@@ -34,6 +34,9 @@ terminal commands, which should work on a Mac:
 
 rm script.js
 cat *.js > script.js
+
+Since it's a temporary file, I've excluded it from our git
+respository so we don't push it along with everthing else.
 
 --------------------
 Implementation Notes:
@@ -49,6 +52,10 @@ which may just be using what is in the database.
 Should there be some sort of guide to the website using a "?" icon?
 Just an idea.
 
+The database interface currently doesn't support ticket prices, but
+will eventually. The front end should support ticket prices once the
+database interface gets its stuff together.
+
 -------------
 General Notes:
 
@@ -59,7 +66,7 @@ Do not push the database username and password ever.
 Creating the database takes time. We don't need an asshole deleting
 our database.
 
-REPIII cannot spell the word "departure". This has literally caused
-hours of bugs lol just a heads up for future bugs.
+REPIII cannot spell the words "departure" and "success". This has
+literally caused hours of bugs lol just a heads up for future bugs.
 
 Client link: http://comp426.cs.unc.edu:3001/client
