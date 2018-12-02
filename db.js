@@ -27,8 +27,8 @@
 // functions. Prototype functions must follow their object.
 //
 // Whenever "ID" is reference, it's referring to the database ID of
-// references. Other uses of "ID", like airline code, airport code, or
-// flight code, use some other terminology (like "code").
+// references. Other uses of "ID", like airline code, airport code,
+// or flight code, use some other terminology (like "code").
 
 
 $426_ROOT_URL = "http://comp426.cs.unc.edu:3001/"
@@ -1813,11 +1813,13 @@ let _db_426Airports = function() {
 // Basically just used for testing.
 let _db_on_airport_load = function(obj) {
 
-    return; 
-    //let a = $426Airports.get_dests(1611);
-    //a.push("1611");
-    //$426Map.add_airports(a);
-    //$426Map.add_paths(1611);
+    if ($426Map.get_map() == null) {
+        setTimeout(_bb_on_airrport_load, 500);
+    }
+    $426Map.set_airports($426Airports.get_dests(1611));
+    $426Map.draw_airports($426Map.get_airports())
+    $426Map.draw_airportSource(1611);
+    $426Map.draw_paths();
 
 }
 

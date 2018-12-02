@@ -27,7 +27,7 @@ let controls_autofill = function(e) {
     autocomplete.html(out);
     autocomplete.css("width", div.css("width"));
     autocomplete.css("left", div.offset().left);
-    
+
 }
 
 $(document).ready(() => {
