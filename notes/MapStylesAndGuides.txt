@@ -1,1 +1,3 @@
 https://www.mapbox.com/mapbox-gl-js/example/setstyle/
+https://www.mapbox.com/mapbox-gl-js/example/fitbounds/
+https://www.mapbox.com/mapbox-gl-js/example/data-driven-lines/
