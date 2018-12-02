@@ -1,0 +1,51 @@
+63,310,Airbus A310,32,3|3|3
+64,319,Airbus A319,24,3|3
+65,320,Airbus A320,30,3|3
+66,321,Airbus A321,34,3|3
+67,330,Airbus A330-100,34,2|4|2
+68,332,Airbus A330-200,36,2|4|2
+69,333,Airbus A330-300,40,2|4|2
+70,AT4,AT 42,11,2|2
+71,AT5,AT 45,15,2|2
+72,AT7,AT 72,17,2|2
+73,BE1,Beechcraft 1900,9,1|1
+74,717,Boeing 717,29,2|3
+75,733,Boeing 737-300,20,3|3
+76,734,Boeing 737-400,21,3|3
+77,735,Boeing 737-500,22,3|3
+78,736,Boeing 737-600,23,3|3
+79,737,Boeing 737-700,24,3|3
+80,738,Boeing 737-800,30,3|3
+81,739,Boeing 737-900,32,3|3
+82,752,Boeing 757-200,34,3|3
+83,753,Boeing 757-300,41,3|3
+84,757,Boeing 737-700,44,3|3
+85,762,Boeing 767-200,44,2|3|2
+86,763,Boeing 767-300,44,2|3|2
+87,764,Boeing 767-400,44,2|3|2
+88,767,Boeing 767-700,44,2|3|2
+89,777,Boeing 777,40,3|4|3
+90,CR7,Bombardier CRJ-700,23,2|2
+91,CR9,Bombardier CRJ-900,21,2|2
+92,CNA,Cessna 402A,3,1|1
+93,CNC,Cessna 402C,5,1|1
+94,DH1,de Havilland Dash 8-100,9,2|2
+95,DH3,de Havilland Dash 8-300,13,2|2
+96,DH4,de Havilland Dash 8-400,15,2|2
+97,DHT,de Havilland Canada Twin Otter,1,1|1
+98,D38,Dornier 328,8,2|2
+99,E70,Embraer E-170,18,2|2
+100,E75,Embraer E-175,20,2|2
+101,E90,Embraer E-190,33,2|2
+102,ER4,Embraer ERJ-145,18,1|2
+103,ERD,Embraer ERJ-140,16,1|2
+104,EM2,Embraer EMB 120 Brasilia,8,2|2
+105,FRJ,Fairchild Dornier 328JET,9,2|2
+106,SWM,Fairchild Swearingen Metroliner,9,1|1
+107,M80,McDonnell Douglas MD-80,37,2|3
+108,M83,McDonnell Douglas MD-83,38,3|2
+109,M88,McDonnell Douglas MD-88,36,3|2
+110,M90,McDonnell Douglas MD-90,39,2|3
+111,PL2,Pilatus PC-12,4,2|2
+112,PA2,Piper Cherokee,1,1|1
+113,SF3,SAAB 340B,11,1|2

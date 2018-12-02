@@ -103,4 +103,4 @@ tags
 *.__afs[A-F0-9]*
 
 # Temporary CSVs
-/DB/WorkingCSVs
+/db/WorkingCSVs/
