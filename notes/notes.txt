@@ -36,10 +36,13 @@ rm script.js
 cat *.js > script.js
 
 Since it's a temporary file, I've excluded it from our git
-respository so we don't push it along with everthing else.
+repository so we don't push it along with everything else.
 
 --------------------
 Implementation Notes:
+
+The side panels, ticket and itinerary, should show and hide via CSS
+animations.
 
 While building the database timezones were too difficult to
 implement. Thus both departure AND arrival times are in the timezone
@@ -55,6 +58,25 @@ Just an idea.
 The database interface currently doesn't support ticket prices, but
 will eventually. The front end should support ticket prices once the
 database interface gets its stuff together.
+
+Publicly Facing Interfaces Needed:
+
+-Tickets-
+Ability to clear all options
+Ability to show.
+Ability to hide
+Ability to accept flight IDs and populate accordingly.
+
+-Controls-
+Ability to clear controls
+Ability to set the value in controls
+
+-Itinerary-
+Ability to show.
+Ability to hide.
+Ability to accept a confirmation code or email into its search
+functionality and run that search immediately (like after a flight
+is bought)
 
 -------------
 General Notes:
