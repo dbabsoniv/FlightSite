@@ -468,8 +468,8 @@ $426Instance = function(oData) {
  *  -5      : date is not formatted correctly.
  *  -6      : date is in the past or date is an impossible date,
  *          e.g. "2018-50-50".
- *  -7      : idFlight is not within the flight IDs of our database, and
- *          therefore must be illegal.
+ *  -7      : idFlight is not within the range of flight IDs of
+ *            our database, and therefore must be illegal.
  *  -8      : seat is not formatted correctly. The formatting of a seat
  *          is "07B". Letters P-Z are illegal.
  *  jqXHR   : jqXHR object. Caller does not need to wait on object.
@@ -479,7 +479,6 @@ $426Instance = function(oData) {
  * ---------------------------
  *  -1  : Asynchronous request failed
  *  obj : $426Instance object
- *
  *
  */
 //FIXME February 31st is "legal" currently. More checks are necessary.
@@ -1440,10 +1439,7 @@ let db_login = function() {
         {
 
             data: {
-                user: {
-                    username: "",
-                    password: ""
-                }
+                "user": $426Parameters
             },
             datatype: "json",
             error: (jqXHR, text, err) => {

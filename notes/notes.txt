@@ -12,6 +12,12 @@ an operator of a Delta flight.
 The Flight object understands this and has been designed to handle
 this.
 
+ID Ranges (Inclusive):
+AIRLINE ID RANGE: [66, 107]
+AIRPORT ID RANGE: [1465, 1982]
+FLIGHT ID RANGE: [1836, 18691]
+PLANE ID RANGE: [63, 113]
+
 ---------
 Git tips:
 
@@ -48,6 +54,10 @@ General Notes:
 
 Robert refers to himself as REPIII in code comments, if that
 weren't already obvious...
+
+Do not push the database username and password ever.
+Creating the database takes time. We don't need an asshole deleting
+our database.
 
 REPIII cannot spell the word "departure". This has literally caused
 hours of bugs lol just a heads up for future bugs.
