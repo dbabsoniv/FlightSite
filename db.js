@@ -4,13 +4,20 @@
 // WARNING: Sanitation should occur the moment the input is
 // collected. None of these objects and functions check for
 // sanitation. It's assumed sanitation occurs long before strings
-// get here.
+// get here. "Sanitation" as a concept also includes string length.
+// These functions do not check for string length, even though some
+// maximum length bound should always be instituted.
 //
 // Because of promises, code outside of the database interface will
 // have to handle jqXHR status codes.
 // Whenever this is the case, the function should say how to do
 // this.
-/
+//
+// Whenever an asynchronous request fails, the failure information
+// may not be passed back to whatever function made the request.
+// Generally just an error code is passed back, e.g. -1.
+// The failure information is always logged though. Check the logs.
+//
 // This file is organized into 4 sections:
 //  (1) Constants
 //  (2) Global Objects
@@ -90,9 +97,9 @@ $426Flight = function(oData) {
      *
      *  Returns
      *  -------
-     *  time    : (String) Format of string returned is "00:00" in
-     *            24Hour time. Timezone is the timezone of the
-     *            source airport of this flight.
+     *  time: (String) Format of string returned is "00:00" in
+     *        24Hour time. Timezone is the timezone of the
+     *        source airport of this flight.
      */
     this.get_arrival_time_string = () => {
         return oData["arrives_at"].replace(/^2000-01-01T/, "").replace(/:00\.000Z$/, "");
@@ -113,9 +120,9 @@ $426Flight = function(oData) {
      *
      *  Returns
      *  -------
-     *  time    : (String) Format of string returned is "00:00" in
-     *            24Hour time. Timezone is the timezone of the
-     *            source airport of this flight.
+     *  time: (String) Format of string returned is "00:00" in
+     *        24Hour time. Timezone is the timezone of the
+     *        source airport of this flight.
      */
     this.get_departure_time_string = () => {
         return oData["departs_at"].replace(/^2000-01-01T/, "").replace(/:00\.000Z$/, "");
@@ -126,8 +133,8 @@ $426Flight = function(oData) {
      *
      *  Returns
      *  -------
-     *  distance    : (Number - Integer) Distance of this flight in
-     *                kilometers.
+     *  distance: (Number - Integer) Distance of this flight in
+     *            kilometers.
      *
      *  Notes
      *  -----
@@ -143,8 +150,8 @@ $426Flight = function(oData) {
      *
      *  Returns
      *  -------
-     *  distance    : (Number - Integer) Distance of this flight in
-     *                miles.
+     *  distance: (Number - Integer) Distance of this flight in
+     *            miles.
      *
      *  Notes
      *  -----
@@ -204,7 +211,7 @@ $426Flight = function(oData) {
  *  ----------
  *  id_dest : (Number - Integer) Airport ID of destination airport.
  *  id_src  : (Number - Integer) Airport ID of source airport
- *  func    : (Function) Function which must handle asynchronous
+ *  func    : (Function) Function which handles asynchronous
  *            returns.
  *
  *  Returns
@@ -224,7 +231,6 @@ $426Flight = function(oData) {
  *  Notes
  *  -----
  *  Only one argument will ever be passed to func at a time.
- *
  */
 $426Flight.retrieve_flights = function (id_dest, id_src, func) {
 
@@ -287,7 +293,7 @@ $426Flight.retrieve_by_id = function(id) {
  *
  *  Parameters
  *  ----------
- *  time    : (String) Time in the format "00:00", 24Hour time.
+ *  time: (String) Time in the format "00:00", 24Hour time.
  *
  *  Returns
  *  -------
@@ -298,13 +304,12 @@ $426Flight.retrieve_by_id = function(id) {
  *  Notes
  *  -----
  *  This function has not been tested since it was last changed.
- *
  */
 $426Flight.time_string_to_raw = function(time) {
 
     if (typeof(time) !== "string") {
         return -1;
-    else if (time.search(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/) < 0) {
+    } else if (time.search(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/) < 0) {
         return -2;
     } else {
         let time = time.replace(/^2000-01-01T/, "").replace(/:00\.000Z$$/, "");
@@ -410,7 +415,6 @@ $426Instance = function(oData) {
      *  jqXHR["status"] === 200.
      *  See other examples of this practice in this file
      *  for further details
-     *
      */ 
     this.patch = () => {
 
@@ -467,18 +471,24 @@ $426Instance = function(oData) {
  *  -4      : func is not a function.
  *  -5      : date is not formatted correctly.
  *  -6      : date is in the past or date is an impossible date,
- *          e.g. "2018-50-50".
+ *            e.g. "2018-50-50".
  *  -7      : idFlight is not within the range of flight IDs of
  *            our database, and therefore must be illegal.
  *  -8      : seat is not formatted correctly. The formatting of a seat
- *          is "07B". Letters P-Z are illegal.
+ *            is "07B". Letters P-Z are illegal.
  *  jqXHR   : jqXHR object. Caller does not need to wait on object.
  *            Argument func will handle asynchronous returns.
+ *            This return indicates the call to this function was
+ *            successful as far as the caller should be concerned.
  *
  * Potential Arguments to func
  * ---------------------------
  *  -1  : Asynchronous request failed
- *  obj : $426Instance object
+ *  obj : $426Instance object.
+ *
+ *  Notes
+ *  -----
+ *  Only one argument will ever be passed to func at a time.
  *
  */
 //FIXME February 31st is "legal" currently. More checks are necessary.
@@ -601,6 +611,9 @@ $426Instance.create = function(date, idFlight, seat, func) {
     );
 
 }
+// Helper function. Don't call this function.
+// You want to be calling this guy's parent,
+// $426Instance.create().
 $426Instance._create = function(date, idFlight, seat, func) {
 
     const pack = {
@@ -648,22 +661,64 @@ $426Instance._create = function(date, idFlight, seat, func) {
     );
 
 }
+// See _db_retrieve_by_id()
 $426Instance.retrieve_by_id = function(id) {
     return _db_retrieve_by_id(id, "instances/");
 }
+/*
+ *  Retrieves an Instance by date and flight ID.
+ *
+ *  Date can be null, so it also can retrieve Instances by flight
+ *  ID alone.
+ *
+ *  Parameters
+ *  ----------
+ *  date    : (String) Date associated with the Instance to be
+ *            retrieved.
+ *            date can be null or "". These are valid parameters
+ *            and will not result in an error code.
+ *            The call will just filter on idFlight alone.
+ *  idFlight: (Number - Integer) Flight ID associated with the
+ *            Instance to be retrieved.
+ *  func    : (Function) Function which handles asynchronous
+ *            returns.
+ *
+ *  Returns
+ *  -------
+ *  -1      : idFlight is not a number.
+ *  -2      : func is not a function.
+ *  jqXHR   : jqXHR object. Caller does not need to wait on object.
+ *            Argument func will handle asynchronous returns.
+ *            This return indicates the call to this function was
+ *            successful as far as the caller should be concerned.
 
-//date can be null. idFlight cannot be null, although this function
-//works "fine" if idFlight is illegal. The AJAX call will just fail.
-//The given func must handle that error.
+ *
+ *  Potential Arguments to func
+ *  ---------------------------
+ *  -1      : Asynchronous request failed
+ *  false   : Asynchronous request succeeded, but there were no
+ *            Instances associated with the parameters given.
+ *  obj     : $426Instance object
+ *
+ *  Notes
+ *  -----
+ *  Only one argument will ever be passed to func at a time.
+ *
+ *  The asynchronous request can return multiple instances,
+ *  particularly if date is null or invalid. The caller and func
+ *  should be prepared for this outcome.
+ */
 $426Instance.retrieve_by_flight_id_and_date = function(idFlight, date, func) {
 
-    if (idFlight == null) {
-        return false;
+    if (typeof(idFlight) !== "number") {
+        return -1;
+    } else if (!(func instanceof Function)) {
+        return -2;
     }
 
     if (date == null || typeof(date) !== "string" || date === "") {
 
-        $.ajax(
+        return $.ajax(
             `${$426_ROOT_URL}instances`,
             {
 
@@ -712,7 +767,7 @@ $426Instance.retrieve_by_flight_id_and_date = function(idFlight, date, func) {
 
     } else {
 
-        $.ajax(
+        return $.ajax(
             encodeURI(`${$426_ROOT_URL}instances?filter[date]=${date}`),
             {
 
@@ -761,16 +816,76 @@ $426Instance.retrieve_by_flight_id_and_date = function(idFlight, date, func) {
 
     }
 
-    return true;
-
 }
+
+/*
+ *  Itinerary object
+ *
+ *  Parameters
+ *  ----------
+ *  oData   : Database data as a JavaScript object.
+ *            oData is NOT a string.
+ */
 $426Itinerary = function(oData) {
 
+    // Gets the confirmation code of this itinerary, a string.
     this.get_code = () => { return oData["confirmation_code"]; }
+    // Gets the email address of this itinerary, a string. 
     this.get_email = () => { return oData["email"]; }
+    // Gets the ID of this itinerary, and number (integer).
     this.get_id = () => { return oData["id"]; }
 
 }
+/*
+ * Creates a new Itinerary resource in the database.
+ *
+ *  If an instance aligning with the request already exists in the
+ *  database, that is returned instead, and no new instance is
+ *  created. This behavior is silent.
+ *
+ *  Parameters
+ *  ----------
+ *  code    : (String) The confirmation code for the new itinerary.
+ *            The code must be 10 alphanumeric characters.
+ *            See $426Itinerary.generate_code().
+ *  email   : (String) The email associated with the new itinerary.
+ *  func    : (Function) Function to handle asynchronous returns. 
+ *
+ *  Returns
+ *  -------
+ *  -1      : code is not a string.
+ *  -2      : email is not a number
+ *  -3      : func is not a function.
+ *  -4      : code is illegal (not alphanumeric, etc).
+ *  -5      : Invalid email address formatting.
+ *  jqXHR   : jqXHR object, an jqXHR not actually associated with
+ *            asynchronous POST request.
+ *            This return is for testing purposes and should NOT be
+ *            manipulated by any normal calling function.
+ *            This return indicates the call to this function was
+ *            successful as far as the caller should be concerned.
+ *
+ * Potential Arguments to func
+ * ---------------------------
+ *  -1      : Something is seriously wrong with this function and needs
+ *            debugging. This should NEVER be passed on to func.
+ *  -2      : Something is seriously wrong with this function and needs
+ *            debugging. This should NEVER be passed on to func.
+ *  -3      : Something is seriously wrong with this function and needs
+ *            debugging. This should NEVER be passed on to func.
+ *  -4      : Asynchronous request failed.
+ *  false   : Itinerary with the provided code already exists in the
+ *            database. No new itinerary was created.
+ *  obj     : $426Itinerary object
+ *
+ *  Notes
+ *  -----
+ *  Only one argument will ever be passed to func at a time.
+ *
+ *  Check the uniqueness of the code before passing it to this
+ *  function. Not required, this function handles non-unique codes,
+ *  but that will probably make life easier.
+ */
 $426Itinerary.create = function(code, email, func) {
 
     // That email regex is not remotely meant to be exhaustive.
@@ -783,19 +898,17 @@ $426Itinerary.create = function(code, email, func) {
         return -2;
     } else if (!(func instanceof Function)) {
         return -3
+    } else if (code.search(/^[\dA-Z]{10}$/) < 0) {
+        return -4; 
     } else if (
         email.search(
-        /^[a-zA-Z0-9!#$%&'*+\-/=?^_`{|}~.]+@[a-zA-Z0-9.]+\.[a-zA-Z0-9]+$/
+            /^[a-zA-Z0-9!#$%&'*+\-/=?^_`{|}~.]+@[a-zA-Z0-9.]+\.[a-zA-Z0-9]+$/
         ) < 0
-    ) { 
-        return -4; 
-    } else if (code.search(/^[\dA-Z]{10}$/) < 0) {
+    ) {
         return -5;
     }
 
     return $426Itinerary.retrieve_by_code(code, (r) => {
-
-        //console.log(r);
 
         if (r === false) {
          
@@ -826,7 +939,7 @@ $426Itinerary.create = function(code, email, func) {
                                 jqXHR, text, data,
                                 "$426Itinerary.create success"
                             );
-                            func(-1);
+                            func(-4);
                             return;
 
                         }
@@ -853,10 +966,24 @@ $426Itinerary.create = function(code, email, func) {
     });
 
 }
-// Returns a 10 character string of random alphanumeric
-// characters. There is no guarentee that this code is unique in
-// the DB, and that MUST be checked.
-$426Itinerary.make_code = function() {
+/*
+ *  Returns a 10 character string of random alphanumeric characters.
+ *
+ *  This function is designed to create random codes for new
+ *  itineraries.
+ *
+ *  Returns
+ *  -------
+ *  code    : (String) A 10 character string of random alphanumeric
+ *            characters. All alphabetic characters will be
+ *            uppercase.
+ *
+ *  Notes
+ *  -----
+ *  This function makes no guarantee of the uniqueness of the code
+ *  generated.
+ */
+$426Itinerary.generate_code = function() {
 
     let legal = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     let out = "";
@@ -868,6 +995,34 @@ $426Itinerary.make_code = function() {
     return out;
 
 }
+/*
+ *  Retrieves an itinerary by confirmation code.
+ *
+ *  Parameters
+ *  ----------
+ *  code    : (String) The confirmation code associated with the
+ *            desired itinerary. Must be composed of 10 alphanumeric
+ *            characters.
+ *  func    : (Function) Function which handles asynchronous
+ *            returns.
+ *  
+ *  Returns
+ *  -------
+ *  -1  : code is not a string.
+ *  -2  : func is not a function.
+ *  -3  : code does not have the format of a confirmation code. 
+ *
+ *  Potential Arguments to func
+ *  ---------------------------
+ *  -1      : Asynchronous request failed
+ *  false   : Asynchronous request succeeded, 
+ *            but no Instances are associated with the code given.
+ *  obj     : $426Itinerary object
+ *
+ *  Notes
+ *  -----
+ *  Only one argument will ever be passed to func at a time.
+ */
 $426Itinerary.retrieve_by_code = function(code, func) {
 
     if (typeof(code) !== "string" ) {
@@ -878,7 +1033,7 @@ $426Itinerary.retrieve_by_code = function(code, func) {
         return -3;
     }
 
-    $.ajax(
+    return $.ajax(
         encodeURI(
             `${$426_ROOT_URL}itineraries?filter[confirmation_code]=${code}`
         ),
@@ -922,9 +1077,39 @@ $426Itinerary.retrieve_by_code = function(code, func) {
         }
     );
 
-    return true;
-
 } 
+/*
+ *  Retrieves itineraries by email address.
+ *
+ *  Parameters
+ *  ----------
+ *  email   : (String) The email address associated with the
+ *            itineraries desired.
+ *  func    : (Function) Function which handles asynchronous
+ *            returns.
+ *  
+ *  Returns
+ *  -------
+ *  -1  : code is not a string.
+ *  -2  : func is not a function.
+ *
+ *  Potential Arguments to func
+ *  ---------------------------
+ *  -1      : Asynchronous request failed
+ *  false   : Asynchronous request succeeded, 
+ *            but there are no Instances associated with email
+ *            address given.
+ *  obj     : $426Itinerary object
+ *
+ *  Notes
+ *  -----
+ *  Only one argument will ever be passed to func at a time.
+ *
+ *  Often there will be more than one itinerary returned. func will
+ *  be fired for as many itineraries as are found. Arrays are not
+ *  passed to func, itineraries are.
+ */
+
 $426Itinerary.retrieve_by_email = function(email, func) {
 
     if (typeof(email) !== "string") {
@@ -954,7 +1139,6 @@ $426Itinerary.retrieve_by_email = function(email, func) {
                         jqXHR, text, data,
                         "$426Itinerary.retrieve_by_email success"
                     );
-
                     func(-1);
                     return;
 
@@ -964,8 +1148,7 @@ $426Itinerary.retrieve_by_email = function(email, func) {
                         jqXHR, text, data,
                         "$426Itinerary.retrieve_by_email success"
                     );
-
-                    func(-2);
+                    func(false);
                     return;
 
                 }
@@ -982,36 +1165,90 @@ $426Itinerary.retrieve_by_email = function(email, func) {
     );
 
 }
+// See _db_retrieve_by_id().
 $426Itinerary.retrieve_by_id = function(id) {
     return _db_retrieve_by_id(id, "itineraries/");
 }
 
+/*
+ *  Plane object
+ *
+ *  Parameters
+ *  ----------
+ *  oData   : Database data as a JavaScript object.
+ *            oData is NOT a string.
+ */
 $426Plane = function(oData) {
 
     oData["info"] = JSON.parse(oData["info"]);
 
+    // Gets the name of the plane, a string.
     this.get_name = () => { return oData["name"]; }
+    // Gets the number of rows in the plane, a number (integer).
     this.get_rows = () => { return +oData["info"]["rows"]; }
-    // Scheme is NOT translated in any way. It's a raw string.
+
+    /*
+     *  Gets the seat scheme of the plane. 
+     *
+     *  Returns
+     *  -------
+     *  scheme  : (String) Seat scheme of the plane.
+     *            A seat scheme is a set of numbers divided by "|".
+     *            The 3-3 seat scheme in an Airbus A320 is
+     *            represented by "3|3".
+     *            The 2-3-2 seat scheme in an Boeing 767 is
+     *            represented by "2|3|2".
+     *
+     *  Notes
+     *  -----
+     *  There are no cabins in any scheme. Planes are one cabin,
+     *  with the same seating alignment in every row. 
+     *  Airlines do not have unique seating schemes. Every A320 for
+     *  every airline has the same seating schemes. Planes are not
+     *  unique to airlines.
+     */ 
     this.get_scheme = () => { return oData["info"]["scheme"]; }
 
 }
+// See _db_retrieve_by_id().
 $426Plane.retrieve_by_id = function(id) {
     return _db_retrieve_by_id(id, "planes/");
 }
 
+/*
+ *  Ticket object
+ *
+ *  Parameters
+ *  ----------
+ *  oData   : Database data as a JavaScript object.
+ *            oData is NOT a string.
+ */
 $426Ticket = function(oData) {
 
+    // Gets the age of the ticket holder, a number (integer).
     this.get_age = () => { return oData["age"]; }
+    // Gets the gender of the ticket holder, a string.
     this.get_gender = () => { return oData["gender"]; }
+    // Gets the ID of the instance associated with the ticket
+    // holder, a number (integer).
     this.get_idInstance = () => { return oData["instance_id"]; }
+    // Gets the ID of the itinerary associated with this ticket
+    // holder, a number (integer).
     this.get_idItinerary = () => { return oData["itinerary_id"]; }
+    // Gets the first name of this ticket holder, a string, which
+    // includes the ticket holder's salutations (Mr. Ms. Dr., etc.).
     this.get_nameFirst = () => { return oData["first_name"]; }
+    // Gets the last name of this ticket holder, a string, which
+    // includes the ticket holder's suffix (III, IV, Jr., etc.).
     this.get_nameLast = () => { return oData["last_name"]; }
+    // Gets the middle name of this ticket holder, a string.
     this.get_nameMiddle = () => { return oData["middle_name"]; }
+    // Gets the seat reserved for this ticket holder, a string.
+    // e.g. "04B".
     this.get_seat = () => { return oData["info"]; }
 
 }
+// Helper function. Don't call this function.
 $426Ticket._check_tickets = function(pack) {
 
     return new Promise((resolve, reject) => {
@@ -1077,7 +1314,82 @@ $426Ticket._check_tickets = function(pack) {
     });
 
 }
-// Seat is a string like "B14", not an Object or an ID.
+/*
+ *  Creates a new Ticket resource in the database.
+ *
+ *  If at ticket exists in the database and has every single one of
+ *  these parameters, nothing is different, the function silently
+ *  does not create the new ticket. It instead returns the existing ticket. 
+ *
+ *  Parameters
+ *  ----------
+ *  Age         : (Number - Integer) Age of the new ticket holder.
+ *  Gender      : (String) Gender of the new ticket holder.
+ *                Any non-empty string is a valid gender.
+ *  idInstance  : (Number - Integer) ID of the flight instance
+ *                associated with the new ticket.
+ *  idItinerary : (Number - Integer) ID of the instance associated
+ *                with the new ticket.
+ *  nameFirst   : (String) First name of the new ticket holder.
+ *                Any nonempty string is a valid nameFirst.
+ *  nameMiddle  : (string) Middle name of the new ticket holder.
+ *                Empty string is valid
+ *  nameLast    : (String) Last name of the new ticket holder.
+ *                Empty string is valid.
+ *  nameSal     : (String) Salutations of the new ticket holder.
+ *                This is meant to be Mr., Mrs., Dr., etc., but no
+ *                check is made. It can be anything in practice,
+ *                including the empty string.
+ *  nameSuffix  : (String) Suffix of the new ticket holder.
+ *                This is meant to be Jr., III, IV, etc., but no
+ *                check is made. It can be anything in pratice,
+ *                including the empty string.
+ *  seat        : (String) Seat reserved for the new ticket.
+ *                Seat must be the format of a seat. "04B".
+ *  func        : (Function) Function which handles asynchronous
+ *                returns.
+ *
+ *  Returns
+ *  -------
+ *  -1      : age is not a number.
+ *  -2      : gender is not a string or is the empty string.
+ *  -3      : idInstance is not a number.
+ *  -4      : idItinerary is not a number.
+ *  -5      : nameFirst is not a string or is the empty string.
+ *  -6      : nameMiddle is not a string.
+ *  -7      : nameLast is not a string.
+ *  -8      : nameSal is not a string.
+ *  -9      : nameSuffix is not a string.
+ *  -10     : seat is not a string.
+ *  -11     : func is not a function.
+ *  -12     : seat is improperly formatting for a seat.
+ *            Seats are of the form "ROWLETTER", e.g."04B".
+ *            Letters below O are illegal.
+ *  promise : promise object. Caller should not wait on this
+ *            object, as it is meant for debugging only. Argument
+ *            func will handle asynchronous returns.
+ *            This return indicates the call to this function was
+ *            successful as far as the caller should be concerned.
+ *
+ * Potential Arguments to func
+ * ---------------------------
+ *  -1  : Something is seriously wrong with this function and needs
+ *        debugging. This should NEVER be passed on to func. 
+ *        Problem is with idInstance.
+ *  -2  : Something is seriously wrong with this function and needs
+ *        debugging. This should NEVER be passed on to func. 
+ *        Problem is with idItinerary.
+ *  -3  : Asynchronous PUT request failed.
+ *  -4  : Asynchronous GET request failed.
+ *  -5  : Asynchronous GET request failed.
+ *  -6  : Asynchronous GET request failed.
+ *  obj : $426Instance object.
+ *
+ *  Notes
+ *  -----
+ *  Only one argument will ever be passed to func at a time.
+ *
+ */
 $426Ticket.create = function(
     age,
     gender,
@@ -1094,13 +1406,13 @@ $426Ticket.create = function(
 
     if (typeof(age) !== "number") {
         return -1;
-    } else if (typeof(gender) !== "string") {
+    } else if (typeof(gender) !== "string" || gender === "") {
         return -2;
     } else if (typeof(idInstance) !== "number") {
         return -3;
     } else if (typeof(idItinerary) !== "number") {
         return -4;
-    } else if (typeof(nameFirst) !== "string") {
+    } else if (typeof(nameFirst) !== "string" || nameFirst === "") {
         return -5;
     } else if (typeof(nameMiddle) !== "string") {
         return -6;
@@ -1186,7 +1498,7 @@ $426Ticket.create = function(
 
                 }, this),
                 $.proxy((response) => {
-                    console.log(`Promise: ${response}`);
+                    //console.log(`Promise: ${response}`);
                     if (typeof(response) === "number") {
                         func(response);
                     } else {
@@ -1209,9 +1521,45 @@ $426Ticket.create = function(
     );
 
 }
+// See _db_retrieve_by_id
 $426Ticket.retrieve_by_id = function(id) {
     return _db_retrieve_by_id(id, "tickets/");
 }
+/*
+ *  Retrieves tickets associated with an itinerary ID.
+ *
+ *  Parameters
+ *  ----------
+ *  id      : (Number - Integer) ID of the itinerary associated
+ *            with the tickets desired.
+ *  func    : (Function) Function which handles asynchronous
+ *            returns.
+ *
+ *  Returns
+ *  -------
+ *  -1      : id is not a number
+ *  -2      : func is not a function.
+ *  jqXHR   : jqXHR object. Caller does not need to wait on object.
+ *            Argument func will handle asynchronous returns.
+ *            This return indicates the call to this function was
+ *            successful as far as the caller should be concerned.
+ *
+ *  Potential Arguments to func
+ *  ---------------------------
+ *  -1      : Asynchronous request failed
+ *  false   : Asynchronous request succeeded, but there were no
+ *            Tickets associated with the itinerary ID given.
+ *  obj     : $426Ticket object.
+ *
+ *  Notes
+ *  -----
+ *  Only one argument will ever be passed to func at a time.
+ *
+ *  func should expect to be fired multiple times for every ticket
+ *  found. However only one $426Ticket object is passed to func. An
+ *  array is not passed to func, but the caller and func should be
+ *  prepared to be fired in rapid succession.
+ */
 $426Ticket.retrieve_by_itinerary_id = function(id, func) {
 
     if (typeof(id) !== "number") {
@@ -1269,6 +1617,29 @@ $426Ticket.retrieve_by_itinerary_id = function(id, func) {
 
 }
 
+
+/*
+ *  Regular printout of AJAX errors
+ *
+ *  Whenever there is an AJAX error, successes included, this
+ *  function should be called to log the error to the console in a
+ *  regular manner
+ *
+ *  Parameters
+ *  ----------
+ *  jqXHR   : (jqXHR) jqXHR object returned by the AJAX call.
+ *  text    : (String) Text status returned by the AJAX call.
+ *  err     : (String) Error thrown by the AJAX call.
+ *  where   : (String) In what function was the offending AJAX
+ *            call? So the source of the problem can be found to be
+ *            debugged.
+ *
+ *  Notes
+ *  -----
+ *  See the error subsection of http://api.jquery.com/jquery.ajax/
+ *  for a better understand of the parameters that should be passed
+ *  to this function
+ */
 $426_ajax_handle_error = function(jqXHR, text, err, where) {
 
     //alert("PANIC: AJAX Failure. See logs.")
@@ -1279,6 +1650,25 @@ $426_ajax_handle_error = function(jqXHR, text, err, where) {
 
 } 
 
+/*
+ *  Sanitizes a string of special HTML characters
+ *
+ *  This is NOT a replacement for encodeURI() or encodeURIComponent(),
+ *  nor does this check the length of the string.
+ *
+ *  Parameters
+ *  ---------
+ *  s   : (String) String to be sanitized.
+ *
+ *  Returns
+ *  -------
+ *  s   : (String) Sanitized string.
+ *
+ *  Notes
+ *  -----
+ *  This function can and should be used everywhere, not just in the
+ *  DB interface.
+ */
 $426_sanitize = function(s) {
     return s.replace(
         /</g, "&lt;"
@@ -1294,9 +1684,30 @@ $426_sanitize = function(s) {
 }
 
 /*
- * Status code check: return["status"] === 200
- * Critically, failure generally goes through error and not succees,
- * since the payload is by URI rather than JSON.
+ *  Retrieves a resource from the database by ID.
+ *
+ *  Parameters
+ *  ----------
+ *  id  : (Number - Integer OR String) ID of the resource to
+ *        retrieve.
+ *  gate: (String) Resources gate to retrieve, e.g. "airports/"
+ *        gate must always end with a "/".
+ *
+ *  Returns
+ *  -------
+ *  jqXHR   : jqXHR object. This object should be waited on by the
+ *            caller of this function to check its status.
+ *
+ *  Notes
+ *  -----
+ *  $.wait().then() paradigm should be used with this function call.
+ *  Both done and failure gates of .then() must be checked.
+ *  Critically, since this request is done by URI rather than
+ *  payload, failure generally come through the failure gate and not
+ *  the done gate. This is unique of AJAX requests in this
+ *  interface.
+ *  In the done gate, jqXHR["status"] === 200 should be checked to
+ *  confirm the request was indeed successful.
  */
 var _db_retrieve_by_id = function(id, gate) {
 
@@ -1331,6 +1742,7 @@ var _db_retrieve_by_id = function(id, gate) {
 // We can't create the $426Aiports object until we login, so that's
 // simply a reference. This is the constructor. It is only used once
 // and is called only by _db_login().
+// Do not create this object.
 let _db_426Airports = function() {
 
     this.airports = {};
@@ -1340,7 +1752,7 @@ let _db_426Airports = function() {
     this.get_code = (id) => { return this.airports[id]["code"]; }
 
     // This returns an array of strings, not integers, because of
-    // the way Javascript handles keys.
+    // the way JavaScript handles keys.
     this.get_dests = (id) => { return Object.keys(this.airports[id]["info"]); }
 
     this.get_lat = (id) => { return +this.airports[id]["latitude"]; }
@@ -1409,7 +1821,8 @@ let _db_426Airports = function() {
                 _db_on_airport_load();
 
                 // We don't set $426Airports to this object.
-                // Whatever calls us does that.
+                // Whatever calls us does that
+                // (probably db_login()).
 
             },
             type: "GET",
@@ -1424,14 +1837,15 @@ let _db_426Airports = function() {
 // Basically just used for testing.
 let _db_on_airport_load = function(obj) {
 
-    let a = $426Airports.get_dests(1611);
-    a.push("1611");
-    $426Map.add_airports(a);
-    $426Map.add_paths(1611);
+    return; 
+    //let a = $426Airports.get_dests(1611);
+    //a.push("1611");
+    //$426Map.add_airports(a);
+    //$426Map.add_paths(1611);
 
 }
 
-
+// Login in function. Do not call this function.
 let db_login = function() {
 
     $.ajax(
@@ -1458,4 +1872,4 @@ let db_login = function() {
         }
     );
 
-}();
+}
