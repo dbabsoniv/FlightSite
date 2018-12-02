@@ -1,3 +1,3 @@
 # 426 Final Project Repository
 
-## Dave Babson and Robert Price
+## By Dave Babson and Robert Price
