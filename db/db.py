@@ -17,6 +17,8 @@ This build method is still good though, and should be used as
 a model when implementing the JavaScript build method.
 Also Haversign and all that jazz.
 
+This file was abandoned in favour of db_write.py
+
 Author
 ------
 Robert E. Price, III

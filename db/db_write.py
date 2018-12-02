@@ -39,50 +39,10 @@ It USED to returns maximum of exactly 100 entries.
 Just beacuse it's working now should not be taken for granted.
 I mean, use it, but ALWAYS have a backup method for the day of.
 
-RANGES HAVE NOT BEEN TESTED:
-
-AIRLINE ID RANGE: [66, 107]
-AIRPORT ID RANGE: [1465, 1982]
-FLIGHT ID RANGE: NONE. JAVASCRIPT WILL DEAL WITH THIS. 
-PLANE ID RANGE: [63, 113]
-
 JAVASCRIPT MUST DEAL WITH OPERATOR, IN THE CASE OF ENDEAVOR/DELTA.
 There is NOTHING in the DB indicating that all Endeavor flights
 should be listed as Delta with a note that they are operated by
 Endeavor.
-JAVASCRIPT MUST BUILD FLIGHTS. Move over the build function from other file.
-
-AIRPORT INFO JSON SCHEME:
-if INFO is filed with flight IDs.
-{
-    flights: {
-        // Array filled by JavaScript and PUT to DB.
-        destID1: [Array of flightIDs] 
-        destID2: [Array of flightIDs]
-        ...
-        destID122: [Array of flightIDs]
-    }
-}
-If INFO is filled with 
-{
-    flights: {
-        destID1: {
-            airlineID1: planeID,
-            ....
-            airlineID4: planeID,
-        },
-        ....
-        destID122 : {
-            airlineID1: planeID,
-            ....
-        }
-    }
-}
-
-These two schemes will be mixed. Flights are only built one route at
-a time. An airport will have destinatons with flightIDs and
-destinations without flightIDs. It's up to the JavaScript to figure
-that out.
 
 """
 
@@ -476,30 +436,31 @@ def build_routes():
 
 def db_create():
 
+    return
+
     login()
 
-    #read_airlines("airlines_id_old.csv")
-    #read_airports("airports_id_old.csv")
-    #read_planes("planes_id_old.csv")
-    #read_routes("routes_rep_build_old.csv")
-    #read_routes_simple()
+    read_airlines("airlines_id_old.csv")
+    read_airports("airports_id_old.csv")
+    read_planes("planes_id_old.csv")
+    read_routes("routes_rep_build_old.csv")
+    read_routes_simple()
 
-    #db_write_airlines()
-    #write_file("airlines_id.csv", AIRLINES)
-    #db_write_planes()
-    #write_file("planes_id.csv", PLANES)
-    #db_write_airports()
-    #write_file("airports_id_noInfo.csv", AIRPORTS)
+    db_write_airlines()
+    write_file("airlines_id.csv", AIRLINES)
+    db_write_planes()
+    write_file("planes_id.csv", PLANES)
+    db_write_airports()
+    write_file("airports_id_noInfo.csv", AIRPORTS)
 
-    #update_routes()
-    #write_file("routes_id_simple.csv", ROUTES)
+    update_routes()
+    write_file("routes_id_simple.csv", ROUTES)
 
     read_airlines("airlines_id.csv")
     read_airports("airports_id.csv")
     read_planes("planes_id.csv")
     read_routes("routes_id_build.csv")
 
-    """
     for route in ROUTES:
 
         airlineOP = None
@@ -533,10 +494,10 @@ def db_create():
             DEPT_INFO[route.srcID] = {route.destID : {
                 airlineOP : route.planeID
             }}
-    """
+
 
     db_patch_airports()
-    #write_file("airports_id.csv", AIRPORTS)
+    write_file("airports_id.csv", AIRPORTS)
 
     db_write_flights()
 
