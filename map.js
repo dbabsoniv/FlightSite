@@ -54,7 +54,7 @@ $426Map = new function() {
                 "line-cap": "round",
             },
             "paint": {
-                "line-color": "#17A589",
+                "line-color": ["get", "color"],
                 "line-width": 6,
             }
         }
@@ -89,6 +89,7 @@ $426Map = new function() {
                     "coordinates": [],
                 },
                 "properties": {
+                    "color": "#17A589",
                     "idDest": +ident,
                     "idSrc": this.airportSource
                 },
@@ -216,7 +217,7 @@ let map_pointer = function(e) {
 
 // Only load the map if testing the map directly.
 // There is an API limit.
-/*
+
 $(document).ready(() => {
 
     $426Map.map = new mapboxgl.Map({
@@ -234,4 +235,4 @@ $(document).ready(() => {
     $426Map.map.on("mouseleave", "paths", map_pointer);
 
 });
-*/
+
