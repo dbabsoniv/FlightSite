@@ -88,7 +88,7 @@ Do not push the database username and password ever.
 Creating the database takes time. We don't need an asshole deleting
 our database.
 
-REPIII cannot spell the words "departure" and "success". This has
+REPIII cannot spell the words "airport", "departure", "success". This has
 literally caused hours of bugs lol just a heads up for future bugs.
 
 Client link: http://comp426.cs.unc.edu:3001/client
