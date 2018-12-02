@@ -1243,6 +1243,24 @@ $426Ticket = function(oData) {
     this.get_nameLast = () => { return oData["last_name"]; }
     // Gets the middle name of this ticket holder, a string.
     this.get_nameMiddle = () => { return oData["middle_name"]; }
+    
+    /*
+     *  Gets the price of this ticket.
+     *
+     *  Returns
+     *  -------
+     *  false   : Price was not given on creation.
+     *  price   : (Number - Integer) Price paid for ticket.  
+     */ 
+    this.get_price = () => {
+        let price = oData["price_pad"];
+        if (price ==  null || price < 0) {
+            return false;
+        } else if {
+            return price;
+        }
+    }
+
     // Gets the seat reserved for this ticket holder, a string.
     // e.g. "04B".
     this.get_seat = () => { return oData["info"]; }
@@ -1344,6 +1362,8 @@ $426Ticket._check_tickets = function(pack) {
  *                This is meant to be Jr., III, IV, etc., but no
  *                check is made. It can be anything in pratice,
  *                including the empty string.
+ *  price       : (Number - Float) Price paid for the ticket.
+ *                To indicate null, provide a negative number.
  *  seat        : (String) Seat reserved for the new ticket.
  *                Seat must be the format of a seat. "04B".
  *  func        : (Function) Function which handles asynchronous
@@ -1360,9 +1380,10 @@ $426Ticket._check_tickets = function(pack) {
  *  -7      : nameLast is not a string.
  *  -8      : nameSal is not a string.
  *  -9      : nameSuffix is not a string.
- *  -10     : seat is not a string.
- *  -11     : func is not a function.
- *  -12     : seat is improperly formatting for a seat.
+ *  -10     : price is not a number.
+ *  -11     : seat is not a string.
+ *  -12     : func is not a function.
+ *  -13     : seat is improperly formatting for a seat.
  *            Seats are of the form "ROWLETTER", e.g."04B".
  *            Letters below O are illegal.
  *  promise : promise object. Caller should not wait on this
@@ -1400,6 +1421,7 @@ $426Ticket.create = function(
     nameLast,
     nameSal,
     nameSuffix,
+    price,
     seat,
     func,
 ) {
@@ -1422,12 +1444,14 @@ $426Ticket.create = function(
         return -8;
     } else if (typeof(nameSuffix) !== "string") {
         return -9;
-    } else if (typeof(seat) !== "string") {
+    } else if (typeof(price) !== "number") {
         return -10;
-    } else if (!(func instanceof Function)) {
+    } else if (typeof(seat) !== "string") {
         return -11;
-    } else if (seat.match(/^\d{1,2}[A-O]$/) === null) {
+    } else if (!(func instanceof Function)) {
         return -12;
+    } else if (seat.match(/^\d{1,2}[A-O]$/) === null) {
+        return -13;
     }
 
     return $.when(
@@ -1520,6 +1544,11 @@ $426Ticket.create = function(
         }, this)
     );
 
+}
+$426Ticket.make_price = function(id) {
+    // TODO Write me.
+    // ID is flight ID
+    return false;
 }
 // See _db_retrieve_by_id
 $426Ticket.retrieve_by_id = function(id) {
