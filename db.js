@@ -1,6 +1,6 @@
 //TODO REMEMBER TO CLEAN ALL USER INPUT.
 //TODO USER INPUT MUST HAVE A MAX LENGTH.
-///
+//
 // WARNING: Sanitation should occur the moment the input is
 // collected. None of these objects and functions check for
 // sanitation. It's assumed sanitation occurs long before strings
@@ -33,10 +33,10 @@
 
 $426_ROOT_URL = "http://comp426.cs.unc.edu:3001/"
 
+
 // This is a next level of silly, but the JS throws an error on load
 // if you don't set it to *something*.
 $426Airports = undefined;
-
 
 /*
  *  Airline object
@@ -1683,61 +1683,36 @@ $426_sanitize = function(s) {
     );
 }
 
-/*
- *  Retrieves a resource from the database by ID.
- *
- *  Parameters
- *  ----------
- *  id  : (Number - Integer OR String) ID of the resource to
- *        retrieve.
- *  gate: (String) Resources gate to retrieve, e.g. "airports/"
- *        gate must always end with a "/".
- *
- *  Returns
- *  -------
- *  jqXHR   : jqXHR object. This object should be waited on by the
- *            caller of this function to check its status.
- *
- *  Notes
- *  -----
- *  $.wait().then() paradigm should be used with this function call.
- *  Both done and failure gates of .then() must be checked.
- *  Critically, since this request is done by URI rather than
- *  payload, failure generally come through the failure gate and not
- *  the done gate. This is unique of AJAX requests in this
- *  interface.
- *  In the done gate, jqXHR["status"] === 200 should be checked to
- *  confirm the request was indeed successful.
- */
-var _db_retrieve_by_id = function(id, gate) {
 
-    let t = typeof(id);
-    if (t !== "number" && t !== "string") {
-        return -1;
-    } else if (typeof(gate) !== "string") {
-        return -2;
-    }
+// Login in function. Do not call this function.
+let db_login = function() {
 
-    return $.ajax(
-        encodeURI(
-            `${$426_ROOT_URL}${gate}${encodeURIComponent(id)}`
-        ),
+    $.ajax(
+        `${$426_ROOT_URL}sessions` ,
         {
-            context: this,
+
+            data: {
+                "user": $426Parameters
+            },
             datatype: "json",
             error: (jqXHR, text, err) => {
-                $426_ajax_handle_error(
-                    jqXHR, text, err,
-                    `_db_retrieve_by_id. Gate(${gate}), ID(${id})`
-                )
+                $426_ajax_handle_error(jqXHR, text, err);
             },
-            type: "GET",
-            xhrFields: { withCredentials: true },
+            success: (data, text, jqXHR) => {
+                if (jqXHR.status === 204) {
+                    $426Airports = new _db_426Airports();
+                } else {
+                    $426_ajax_handle_error(jqXHR, text, data);
+                }
+            },
+            type: "POST",
+            xhrFields: {withCredentials: true},
 
         }
     );
 
 }
+
 
 // We can't create the $426Aiports object until we login, so that's
 // simply a reference. This is the constructor. It is only used once
@@ -1845,29 +1820,56 @@ let _db_on_airport_load = function(obj) {
 
 }
 
-// Login in function. Do not call this function.
-let db_login = function() {
+/*
+ *  Retrieves a resource from the database by ID.
+ *
+ *  Parameters
+ *  ----------
+ *  id  : (Number - Integer OR String) ID of the resource to
+ *        retrieve.
+ *  gate: (String) Resources gate to retrieve, e.g. "airports/"
+ *        gate must always end with a "/".
+ *
+ *  Returns
+ *  -------
+ *  jqXHR   : jqXHR object. This object should be waited on by the
+ *            caller of this function to check its status.
+ *
+ *  Notes
+ *  -----
+ *  $.wait().then() paradigm should be used with this function call.
+ *  Both done and failure gates of .then() must be checked.
+ *  Critically, since this request is done by URI rather than
+ *  payload, failure generally come through the failure gate and not
+ *  the done gate. This is unique of AJAX requests in this
+ *  interface.
+ *  In the done gate, jqXHR["status"] === 200 should be checked to
+ *  confirm the request was indeed successful.
+ */
+var _db_retrieve_by_id = function(id, gate) {
 
-    $.ajax(
-        `${$426_ROOT_URL}sessions` ,
+    let t = typeof(id);
+    if (t !== "number" && t !== "string") {
+        return -1;
+    } else if (typeof(gate) !== "string") {
+        return -2;
+    }
+
+    return $.ajax(
+        encodeURI(
+            `${$426_ROOT_URL}${gate}${encodeURIComponent(id)}`
+        ),
         {
-
-            data: {
-                "user": $426Parameters
-            },
+            context: this,
             datatype: "json",
             error: (jqXHR, text, err) => {
-                $426_ajax_handle_error(jqXHR, text, err);
+                $426_ajax_handle_error(
+                    jqXHR, text, err,
+                    `_db_retrieve_by_id. Gate(${gate}), ID(${id})`
+                )
             },
-            success: (data, text, jqXHR) => {
-                if (jqXHR.status === 204) {
-                    $426Airports = new _db_426Airports();
-                } else {
-                    $426_ajax_handle_error(jqXHR, text, data);
-                }
-            },
-            type: "POST",
-            xhrFields: {withCredentials: true},
+            type: "GET",
+            xhrFields: { withCredentials: true },
 
         }
     );
