@@ -1,3 +1,48 @@
+body {
+font-family: Arial, Helvetica, sans-serif;
+}
+div#controls-container {
+    margin-top: 1.5em;
+    margin-left: 0;
+    margin-right: 0;
+    align-content: center;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+div#controls-autocomplete-container {
+    position: relative;
+}
+div#controls div.autocomplete {
+    background: grey;
+    border-color: black;
+    border-style: solid;
+    border-width: 0.24em 0.12em;
+    color: white;
+    font-size: 0.5em;
+    text-align: center;
+}
+/* Border width of autocomplete must be twice input */
+div#controls input {
+    background-color: grey;
+    color: white;
+    font-size: 2em;
+    margin: 0.5em auto;
+    text-align: center;
+}
+div#controls input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: white;
+    opacity: 0.8; /* Firefox */
+}
+div#controls p {
+    font-size: 2em;
+}
+div#controls p.arrow{
+    margin: 0;
+    font-size: 4em !important;
+}
+
+
 div#map {
     bottom: 0;
     position: absolute;
