@@ -7,7 +7,7 @@ let controls_autofill = function(e) {
     const autocomplete = $("div#controls-autocomplete-container");
     const text = $(e.currentTarget).val();
     if (text === "") {
-        autocomplete.html("");
+        autocomplete.html("&nbsp;");
         return;
     }
 
@@ -26,7 +26,7 @@ let controls_autofill = function(e) {
 
     autocomplete.html(out);
     autocomplete.css("width", div.css("width"));
-    autocomplete.css("left", +div.offset().left - +($("body").css("margin-left")[0]));
+    autocomplete.css("left", div.offset().left);
     
 }
 
@@ -38,9 +38,9 @@ $(document).ready(() => {
     $("div#controls-dest-container").on(
         "input", "input#controls-airport-dest", controls_autofill
     );
-    $("div#controls-autofill-container").on(
-        "click", "div.autofill", controls_set_airport
-    );
+    //$("div#controls-autofill-container").on(
+    //    "click", "div.autofill", controls_set_airport
+    //);
 
 
 });

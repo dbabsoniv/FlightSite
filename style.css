@@ -1,8 +1,8 @@
 body {
-font-family: Arial, Helvetica, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
 }
 div#controls-container {
-    margin-top: 1.5em;
+    margin-top: 1.25em;
     margin-left: 0;
     margin-right: 0;
     align-content: center;
@@ -11,7 +11,7 @@ div#controls-container {
     justify-content: center;
 }
 div#controls-autocomplete-container {
-    position: relative;
+    position: absolute;
 }
 div#controls div.autocomplete {
     background: grey;
@@ -41,8 +41,6 @@ div#controls p.arrow{
     margin: 0;
     font-size: 4em !important;
 }
-
-
 div#map {
     bottom: 0;
     position: absolute;
