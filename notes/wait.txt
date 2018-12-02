@@ -1,1 +1,0 @@
-https://stackoverflow.com/questions/4878887/how-do-you-work-with-an-array-of-jquery-deferreds
