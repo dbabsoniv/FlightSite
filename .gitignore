@@ -102,6 +102,7 @@ tags
 # AFS backup files
 *.__afs[A-F0-9]*
 
-# Temporary CSVs
+# Temporary files, like CSVs
 /db/WorkingCSVs/
 parameters.js
+script.js
