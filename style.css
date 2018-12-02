@@ -1,0 +1,19 @@
+div#map {
+    bottom: 0;
+    position: absolute;
+    top: 0; 
+    width: 100%;
+    z-index: -99;
+}
+.hidden {
+    display: none;
+}
+.marker-airport {
+    background-color: blue;
+    cursor: pointer;
+    height: 15px;
+    width: 15px;
+}
+.pointer {
+    cursor: pointer !important;
+}
