@@ -1718,6 +1718,7 @@ let db_login = function() {
 // simply a reference. This is the constructor. It is only used once
 // and is called only by _db_login().
 // Do not create this object.
+// TODO Comment this!
 let _db_426Airports = function() {
 
     this.airports = {};
@@ -1743,7 +1744,7 @@ let _db_426Airports = function() {
 
             let t = this.airportsByCode[txt];
             if (t !== undefined) {
-                out.push(t)
+                out.push(t["id"])
             }
 
         } 
@@ -1755,7 +1756,7 @@ let _db_426Airports = function() {
                 || value["name"].toLowerCase().startsWith(txt)
                 || value["city"].toLowerCase().startsWith(txt)
             ) {
-                out.push(this.airports[key]);
+                out.push(key);
                 if (out.length === 10) {
                     return out;
                 }
