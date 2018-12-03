@@ -1814,7 +1814,7 @@ let _db_426Airports = function() {
 let _db_on_airport_load = function(obj) {
 
     if ($426Map.get_map() == null) {
-        setTimeout(_bb_on_airrport_load, 500);
+        setTimeout(_db_on_airport_load, 500);
     }
     $426Map.set_airports($426Airports.get_dests(1611));
     $426Map.draw_airports($426Map.get_airports())
