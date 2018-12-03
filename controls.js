@@ -1,5 +1,7 @@
 let controls_autofill = function(e) {
 
+    //FIXME Destination should only fill with valid destinations.
+
     if ($426Airports == null) {
         setTimeout(100, controls_autofill(e));
     }
