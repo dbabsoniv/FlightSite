@@ -116,7 +116,7 @@ $426Map = new function() {
         bounds[0][1] = (bounds[0][1] < -89) ? bounds[0][1] : bounds[0][1] - 2;
         bounds[1][0] = (bounds[1][0] > 178) ? bounds[1][0] : bounds[1][0] + 2;
         // This one is higher to avoid the controls UI.
-        bounds[1][1] = (bounds[1][1] > 86) ? bounds[1][1] : bounds[1][1] + 4;
+        bounds[1][1] = (bounds[1][1] > 85) ? bounds[1][1] : bounds[1][1] + 5;
 
         this._map.fitBounds(bounds);
         this._map.addLayer(layer);
@@ -255,6 +255,15 @@ $426Map = new function() {
     // Gets the MapBox map object.
     this.get_map = () => { return this._map; }
 
+    this.reset = () => {
+
+        this._map.flyTo({
+            center: [-99.9995795, 48.3552767],
+            zoom: 4,
+        });
+        // Get and draw random airports.
+    }
+
     /*
      *  Sets this._airports to an array of integers
      *
@@ -328,7 +337,7 @@ let map_pointer = function(e) {
 
 // Only load the map if testing the map directly.
 // There is an API limit.
-/*
+
 $(document).ready(() => {
 
     $426Map._map = new mapboxgl.Map({
@@ -345,5 +354,9 @@ $(document).ready(() => {
     $426Map.get_map().on("mouseenter", "paths", map_pointer);
     $426Map.get_map().on("mouseleave", "paths", map_pointer);
 
+    $426Map.get_map().on(
+        "focus", "map", $426Controls.clear_autocomplete
+    );
+
 });
-*/
+

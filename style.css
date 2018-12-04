@@ -48,6 +48,10 @@ div#map {
     width: 100%;
     z-index: -99;
 }
+div.autocomplete:hover {
+    background: blue !important;
+    
+}
 .hidden {
     display: none;
 }

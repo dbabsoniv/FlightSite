@@ -1812,7 +1812,7 @@ let _db_426Airports = function() {
 // Probably should be deleted before launch.
 // Basically just used for testing.
 let _db_on_airport_load = function(obj) {
-
+        return;
     if ($426Map.get_map() == null) {
         setTimeout(_db_on_airport_load, 500);
     }
