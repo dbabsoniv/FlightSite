@@ -318,7 +318,7 @@ $426Map = new function() {
      *  true    : this._airportSource was set to source.
      */
     this.set_airportSource = (source) => {
-        
+
         if (typeof(source) === "number") {
             this._airportSource = source;
             return true;
@@ -338,6 +338,7 @@ let map_pointer = function(e) {
 // Only load the map if testing the map directly.
 // There is an API limit.
 
+/*
 $(document).ready(() => {
 
     $426Map._map = new mapboxgl.Map({
@@ -359,4 +360,4 @@ $(document).ready(() => {
     );
 
 });
-
+*/
