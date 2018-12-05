@@ -2,30 +2,37 @@ mapboxgl.accessToken = "pk.eyJ1IjoicmVwcmljZSIsImEiOiJjanA0eDRhNXIwbTk5M29wN2MwM
 
 $426Map = new function() {
 
+    this.LINE_COLOR = "#17A589";
+    this.LINE_WIDTH = 5;
+
     this._airports = [];
     this._airportSource;
     this._map = undefined;
     this._markers = {};
     this._paths = null;
+    this._pathActive = null;
     this._popups = [];
 
     // Clears the map of all lines, markers, and popups.
     this.clear = () => {
-        this._map.removeLayer("paths");
-        this._paths = null;
+
+        if (this._paths != null) {
+            this._map.removeLayer("paths");
+            this._paths = null;
+        }
         for (const popup of this._popups) {
             popup.remove();
         }
-        Object.keys(this._markers).forEach(function(key) {
+        Object.keys(this._markers).forEach((key) => {
             this._markers[key].remove();
-        })
+        });
         this._popups = [];
         this._markers = {};
     }
 
     // Draws paths from this._airportSource to all airports in
     // this._airports.
-    this.draw_paths = () => {
+    this.paths_draw = () => {
 
         let airports = this.get_airports();
 
@@ -37,17 +44,21 @@ $426Map = new function() {
             return false;
         }
 
+        this._paths = null;
+
         let arcs = {};
         const ARC_TICKS = 125;
         // [[LONG_MIN, LAT_MIN], [LONG_MAX, LAT_MAX]]
+        let aslo = $426Airports.get_long(this._airportSource);
+        let asla = $426Airports.get_lat(this._airportSource);
         let bounds = [
-            [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER],
-            [Number.MIN_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]
+            [aslo, asla],
+            [aslo, asla]
         ];
         let features = [];
         let longLatSrc = {
-            "x": $426Airports.get_long(this._airportSource),
-            "y": $426Airports.get_lat(this._airportSource)
+            "x": aslo,
+            "y": asla
         };
         let packet = {
             "type": "FeatureCollection",
@@ -101,10 +112,10 @@ $426Map = new function() {
                     "coordinates": [],
                 },
                 "properties": {
-                    "color": "#17A589",
+                    "color": $426Map.LINE_COLOR,
                     "idDest": +ident,
                     "idSrc": this.get_airportSource(),
-                    "width": 6,
+                    "width": $426Map.LINE_WIDTH,
                 },
                 "type": "Feature",
             });
@@ -112,9 +123,9 @@ $426Map = new function() {
         }
 
         // The bound is too tight. Make it more loose.
-        bounds[0][0] = (bounds[0][0] < -178) ? bounds[0][0] : bounds[0][0] - 1;
-        bounds[0][1] = (bounds[0][1] < -89) ? bounds[0][1] : bounds[0][1] - 2;
-        bounds[1][0] = (bounds[1][0] > 178) ? bounds[1][0] : bounds[1][0] + 2;
+        bounds[0][0] = (bounds[0][0] < -179) ? bounds[0][0] : bounds[0][0] - 1;
+        bounds[0][1] = (bounds[0][1] < -89) ? bounds[0][1] : bounds[0][1] - 1;
+        bounds[1][0] = (bounds[1][0] > 179) ? bounds[1][0] : bounds[1][0] + 1;
         // This one is higher to avoid the controls UI.
         bounds[1][1] = (bounds[1][1] > 85) ? bounds[1][1] : bounds[1][1] + 5;
 
@@ -163,7 +174,7 @@ $426Map = new function() {
      *        represented by numbers or strings..
      *  true: airports were drawn onto the map.
      */
-    this.draw_airports = (airports) => {
+    this.airports_draw = (airports) => {
 
         if (!Array.isArray(airports)) {
             return -1;
@@ -176,7 +187,7 @@ $426Map = new function() {
         }
 
         for (let ident of airports) {
-            this._draw_airport(ident, "#0000FF");
+            this._airport_draw(ident, "#0000FF");
         }
 
         return true;
@@ -184,8 +195,8 @@ $426Map = new function() {
     }
 
     // Helper function. Don't call this.
-    // Call this.draw_airports() or this.draw_airportSource() instead.
-    this._draw_airport = (ident, color) => {
+    // Call this.airport_draws() or this.airport_drawSource() instead.
+    this._airport_draw  = (ident, color) => {
 
             if (color == null || color === "") {
                 color = "#0000FF";
@@ -231,7 +242,7 @@ $426Map = new function() {
      *            this_.airportSource is null
      *  true    : Source airport was drawn onto the map.
      */ 
-    this.draw_airportSource = (source) => {
+    this.airportSource_draw = (source) => {
 
         if (typeof(source) === "number") {
             this._airportSource = source;
@@ -239,7 +250,7 @@ $426Map = new function() {
             return false;
         }
 
-        this._draw_airport(this._airportSource, "#FF0000");
+        this._airport_draw(this._airportSource, "#FF0000");
 
         return true;
 
@@ -257,11 +268,55 @@ $426Map = new function() {
 
     this.reset = () => {
 
+        this.clear();
         this._map.flyTo({
             center: [-99.9995795, 48.3552767],
             zoom: 4,
         });
         // Get and draw random airports.
+    }
+
+    this.path_select = (e) => {
+
+        let ret = true;
+
+        //console.log(e.features);
+        if (e != null) { 
+
+            let dest= e.features[0].properties.idDest;
+            let src = e.features[0].properties.idSrc;
+
+            if (this._paths != null) {
+
+                ret = false;
+
+                let data = this._paths.source.data;
+                for (let line of data.features) {
+
+                    if (
+                        dest === line.properties.idDest
+                        && src === line.properties.idSrc
+                    ) {
+                        line.properties.color = "#FF0000";
+                        line.properties.width = 7;
+                    } else {
+                        line.properties.color = $426Map.LINE_COLOR;
+                        line.properties.width = $426Map.LINE_WIDTH;
+                    }
+                }
+
+                this._map.getSource("paths").setData(data);
+
+            }
+
+            // TODO Send info to Tickets interface.
+            //console.log(e.features[0].properties.idSrc);
+            //console.log(e.features[0].properties.idDest);
+
+        }
+
+        return ret;
+
     }
 
     /*
@@ -338,7 +393,6 @@ let map_pointer = function(e) {
 // Only load the map if testing the map directly.
 // There is an API limit.
 
-/*
 $(document).ready(() => {
 
     $426Map._map = new mapboxgl.Map({
@@ -348,16 +402,12 @@ $(document).ready(() => {
         zoom: 4,
     });
 
-    $426Map.get_map().on("click", "paths", (e) => {
-        console.log(e.features[0].properties.idSrc);
-        console.log(e.features[0].properties.idDest);
-    });
+    $426Map.get_map().on("click", "paths", $426Map.path_select);
     $426Map.get_map().on("mouseenter", "paths", map_pointer);
     $426Map.get_map().on("mouseleave", "paths", map_pointer);
-
     $426Map.get_map().on(
         "focus", "map", $426Controls.clear_autocomplete
     );
 
 });
-*/
+
