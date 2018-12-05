@@ -113,9 +113,14 @@ div.autocomplete:hover {
 }
 .marker-airport {
     /*background-color: blue;*/
+    border-radius: 16px;
+    border-style: solid;
+    border-width: 0.05em;
     cursor: pointer;
-    height: 15px;
-    width: 15px;
+    height: 16px;
+    user-select: none;
+    -moz-user-select: -moz-none;
+    width: 16px;
 }
 .pointer {
     cursor: pointer !important;
