@@ -11,7 +11,7 @@ $426Controls = new function() {
 
         // Don't move autoclompete REPIII. It's needed right there.
         const autocomplete = $("div#controls-autocomplete-container");
-        const text = $(e.currentTarget).val();
+        const text = $426_sanitize($(e.currentTarget).val());
         if (text === "") {
             autocomplete.html("&nbsp;");
             return;
