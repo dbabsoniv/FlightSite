@@ -1,30 +1,15 @@
 $426Controls = new function() {
 
-    this._dest = null;
-    this._source = null;
+    this._src = null;
 
-    this.clear_autocomplete = () => {
-        $("div#controls-autocomplete-container").html("&nbsp;");
-    }
-
-    this.clear_input = (e) => {
-
-        if ($(e.delegateTarget).attr("id") === "controls-dest-container") {
-            $("input#controls-airport-dest").val("");
-        }
-        $("input#controls-airport-src").val("");
-    }
-
-    this.autofill = function(e) {
-
-        //FIXME Destination should only fill with valid destinations.
-
-        console.log(e);
+    this.autocomplete = (e) => {
 
         if ($426Airports == null) {
-            setTimeout(100, controls_autofill(e));
+            setTimeout(500, $426Controls.autocomplete(e));
+            return;
         }
 
+        // Don't move autoclompete REPIII. It's needed right there.
         const autocomplete = $("div#controls-autocomplete-container");
         const text = $(e.currentTarget).val();
         if (text === "") {
@@ -32,31 +17,52 @@ $426Controls = new function() {
             return;
         }
 
+        let dsts = undefined;
+        if (this._src != null) {
+            dsts = $426Airports.get_dests(this._src);
+        }
         const div = $(e.delegateTarget);
         let out = "";
         let source;
-        console.log(`ID: ${div.attr("id")}`);
         if (div.attr("id") === "controls-src-container") {
-
-            if (this._source != null) {
-                $426Map.reset();
-                this._source == null;
-                $(e.currentTarget).val();
-            }
+            $("input#controls-airport-dest").val("");
             source = "src";
-
+        } else if (this._src == null) {
+            $("input#controls-airport-dest").val("");
+            return false;
         } else {
             source = "dest";
         }
 
         for (const ident of $426Airports.autocomplete(text)) {
 
-            out = (`${out}<div class="autocomplete" `
-                + `data-code="${ident}" `
-                + `data-source="${source}"><p>`
-                + `${$426Airports.get_city(ident)} `
-                + `(${$426Airports.get_code(ident)})</p></div>`
-            );
+            if (dsts != null) {
+
+                for (const idDst of dsts) {
+
+                    if (idDst === ident) {
+
+                        out = (`${out}<div class="autocomplete" `
+                            + `data-code="${ident}" `
+                            + `data-source="${source}"><p>`
+                            + `${$426Airports.get_city(ident)} `
+                            + `(${$426Airports.get_code(ident)})</p></div>`
+                        );
+                        break;
+                    }
+
+                }
+
+            } else {
+
+                out = (`${out}<div class="autocomplete" `
+                    + `data-code="${ident}" `
+                    + `data-source="${source}"><p>`
+                    + `${$426Airports.get_city(ident)} `
+                    + `(${$426Airports.get_code(ident)})</p></div>`
+                );
+
+            }
 
         }
 
@@ -66,24 +72,84 @@ $426Controls = new function() {
 
     }
 
+    this.clear_autocomplete = () => {
+        $("div#controls-autocomplete-container").html("&nbsp;");
+    }
+
+    this.clear_input = (e) => {
+
+        if ($(e.delegateTarget).attr("id") === "controls-src-container") {
+            this._src = null;
+            $("input#controls-airport-src").val("");
+            //$426Map.reset();
+        }
+
+        $426Map.path_select(null, null, null);
+        $("input#controls-airport-dest").val("");
+    }
+
+    this.get_src = () => { return this._src; }
+
+    this.set_input_dest = (ident) => {
+
+        if (typeof(ident) !== "number") {
+            return false;
+        }
+
+        $("input#controls-airport-dest").val(
+            `${$426Airports.get_city(ident)} `
+            + `(${$426Airports.get_code(ident)})`
+        );
+
+        return true;
+
+    }
+    this.set_input_src = (ident) => {
+
+        if (typeof(ident) !== "number") {
+            return false;
+        }
+
+        this._source = ident;
+        $("input#controls-airport-src").val(
+           `${$426Airports.get_city(ident)} `
+            + `(${$426Airports.get_code(ident)})`
+        );
+
+        return true;
+
+    }
+    this.set_src = (ident) => {
+        if (typeof(ident) === "number") {
+            this._src = ident;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
 
 $(document).ready(() => {
 
     $("div#controls-src-container").on(
-        "input", "input#controls-airport-src", $426Controls.autofill
+        "input", "input#controls-airport-src",
+        $426Controls.autocomplete
     );
     $("div#controls-dest-container").on(
-        "input", "input#controls-airport-dest", $426Controls.autofill
+        "input", "input#controls-airport-dest",
+        $426Controls.autocomplete
     );
 
     $("div#controls-src-container").on(
-        "click", "input#controls-airport-src", $426Controls.clear_input
-    );
-    $("div#controls-dest-container").on(
-        "input", "input#controls-airport-dest", $426Controls.clear_input
+        "click", "input#controls-airport-src",
+        $426Controls.clear_input
     );
 
+    $("div#controls-dest-container").on(
+        "click", "input#controls-airport-dest",
+        $426Controls.clear_input
+    );
 
     $("div#controls-autocomplete-container").on(
         "click", "div.autocomplete", function(e) {
@@ -91,29 +157,30 @@ $(document).ready(() => {
         let ident = $(this).attr("data-code");
         let text = $(this).children().first().text();
 
-        console.log(ident);
-        console.log(text);
-        
         if ($(this).attr("data-source") === "src") {
             $("input#controls-airport-src").val(
                 $(this).children().first().text()
             );
+            $426Controls.set_src(+ident);
+            $426Map.clear();
+            $426Map.set_airports($426Airports.get_dests(ident));
+            $426Map.airportSource_draw(+ident);
+            $426Map.airports_draw($426Map.get_airports());
+            $426Map.paths_draw();
+
         } else {
             $("input#controls-airport-dest").val(
                 $(this).children().first().text()
             );
+            if ($426Controls.get_src() != null) {
+                $426Map.path_select(
+                    null, +ident, $426Controls.get_src()
+                );
+            }
         }
 
-        $426Map.clear();
         $426Controls.clear_autocomplete();
 
-        $426Map.set_airports($426Airports.get_dests(ident));
-        $426Map.draw_airportSource(+ident);
-        $426Map.draw_airports($426Map.get_airports());
-        $426Map.draw_paths();
- 
     });
-
-
 
 });

@@ -104,7 +104,7 @@ $426Map = new function() {
             });
             arcs[ident] = gen.Arc(
                 ARC_TICKS, {"offset": 10}
-            ).geometries[0].coords, 
+            ).geometries[0].coords,
 
             features.push({
                 "geometry": {
@@ -129,6 +129,13 @@ $426Map = new function() {
         // This one is higher to avoid the controls UI.
         bounds[1][1] = (bounds[1][1] > 85) ? bounds[1][1] : bounds[1][1] + 5;
 
+        if (this._map.getSource("paths")) {
+            this._map.removeSource("paths");
+        }
+        if (this._map.getLayer("paths")) {
+            this._map.removeLayer("paths");
+        }
+
         this._map.fitBounds(bounds);
         this._map.addLayer(layer);
 
@@ -144,7 +151,7 @@ $426Map = new function() {
             this._map.getSource("paths").setData(packet);
             if (++i < ARC_TICKS) {
                 animation = requestAnimationFrame(animate);
-            }                
+            }
         }
         animate();
         this._paths = layer;
@@ -158,7 +165,7 @@ $426Map = new function() {
      *
      *  This method doesn't clear anything. It is up to the caller to
      *  clear the map before calling this function, if that is the
-     *  callers intensions. 
+     *  callers intensions.
      *
      *  Parameters
      *  ----------
@@ -276,44 +283,55 @@ $426Map = new function() {
         // Get and draw random airports.
     }
 
-    this.path_select = (e) => {
+    this.path_select = (e, idDest, idSrc) => {
 
-        let ret = true;
+        if (this._paths == null) {
+            return -1;
+        }
 
-        //console.log(e.features);
+        let color = "#FF0000";
+        let ret = false;
+        let width = 7;
+
         if (e != null) { 
 
-            let dest= e.features[0].properties.idDest;
-            let src = e.features[0].properties.idSrc;
+            idDest = e.features[0].properties.idDest;
+            idSrc = e.features[0].properties.idSrc;
 
-            if (this._paths != null) {
+        } else if (
+            typeof(idDest) !== "number"
+            || typeof(idSrc) !== "number"
+        ) {
+            color = $426Map.LINE_COLOR;
+            width = $426Map.LINE_WIDTH;
+        }
 
-                ret = false;
+        if (this._paths != null) {
 
-                let data = this._paths.source.data;
-                for (let line of data.features) {
+            let data = this._paths.source.data;
+            for (let line of data.features) {
 
-                    if (
-                        dest === line.properties.idDest
-                        && src === line.properties.idSrc
-                    ) {
-                        line.properties.color = "#FF0000";
-                        line.properties.width = 7;
-                    } else {
-                        line.properties.color = $426Map.LINE_COLOR;
-                        line.properties.width = $426Map.LINE_WIDTH;
-                    }
+                if (
+                    idDest === line.properties.idDest
+                    && idSrc === line.properties.idSrc
+                ) {
+                    line.properties.color = color;
+                    line.properties.width = width;
+                } else {
+                    line.properties.color = $426Map.LINE_COLOR;
+                    line.properties.width = $426Map.LINE_WIDTH;
                 }
-
-                this._map.getSource("paths").setData(data);
-
             }
 
-            // TODO Send info to Tickets interface.
-            //console.log(e.features[0].properties.idSrc);
-            //console.log(e.features[0].properties.idDest);
+            this._map.getSource("paths").setData(data);
+            $426Controls.set_input_dest(idDest);
+            $426Controls.set_input_src(idSrc);
+
+            ret = true;
 
         }
+
+        // TODO Send info to Tickets interface.
 
         return ret;
 
@@ -322,24 +340,24 @@ $426Map = new function() {
     /*
      *  Sets this._airports to an array of integers
      *
-     *  These integers can be represented by Numbers or Strings. 
+     *  These integers can be represented by Numbers or Strings.
      *
      *  Parameters
      *  ----------
      *  airports: (Array of Numbers - Integers OR Array of String
      *            with only digit characters) An array of airport
-     *            IDs. 
+     *            IDs.
      *
      *  Returns
      *  -------
      *  -1  : airports is not an array.
      *  -2  : airports is a nonempty array of items that do not
-     *        represent integers. 
+     *        represent integers.
      *
      *  Notes
      *  -----
      *  This method has not been tested since it was last updated.
-     */ 
+     */
     this.set_airports = (airports) => {
 
         if (!Array.isArray(airports)) {
@@ -392,7 +410,7 @@ let map_pointer = function(e) {
 
 // Only load the map if testing the map directly.
 // There is an API limit.
-
+/*
 $(document).ready(() => {
 
     $426Map._map = new mapboxgl.Map({
@@ -410,4 +428,4 @@ $(document).ready(() => {
     );
 
 });
-
+*/
