@@ -56,6 +56,9 @@ The database interface currently doesn't support ticket prices, but
 will eventually. The front end should support ticket prices once the
 database interface gets its stuff together.
 
+Ticket panel should be animated in a similar way to the way the
+Itinerary panel is, just without the hover.
+
 -------------
 General Notes:
 
