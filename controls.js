@@ -3,6 +3,7 @@ $426Controls = new function() {
     //FIXME Autcomplete needs to disspear on click of input box.
     //FIXME Autocomplete needs to dissapear on map click.
     //FIXME Have clicking airport select route.
+    //TODO Be able to draw backwards, to desination.
 
     this._src = null;
 
