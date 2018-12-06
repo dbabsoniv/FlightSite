@@ -1,4 +1,4 @@
-$426Itinerary = new function() {
+$426ItineraryPanel = new function() {
 }
 
 $(document).ready(() => {
