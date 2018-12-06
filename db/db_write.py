@@ -62,8 +62,8 @@ RADIUS_EARTH = 6371 # Kilometers
 ROUTES = []
 SESSION = requests.Session()
 SUBS = {"9E": "DL"}
-USER = "BabsonPrice"
-PW = "DaveRobert2015gehirn"
+USER = ""
+PW = ""
 
 AIRLINES_BAD = (
     "2O", "3E", "3F", "3H", "4E", "4N", "4W", "4Y", "6L", "8D", "8P",
