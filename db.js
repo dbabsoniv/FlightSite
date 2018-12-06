@@ -1256,7 +1256,7 @@ $426Ticket = function(oData) {
         let price = oData["price_pad"];
         if (price ==  null || price < 0) {
             return false;
-        } else if {
+        } else {
             return price;
         }
     }

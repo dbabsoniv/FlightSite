@@ -411,7 +411,7 @@ let map_pointer = function(e) {
 
 // Only load the map if testing the map directly.
 // There is an API limit.
-/*
+
 $(document).ready(() => {
 
     $426Map._map = new mapboxgl.Map({
@@ -429,4 +429,4 @@ $(document).ready(() => {
     );
 
 });
-*/
+
