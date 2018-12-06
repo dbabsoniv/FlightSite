@@ -27,8 +27,8 @@
 // functions. Prototype functions must follow their object.
 //
 // Whenever "ID" is reference, it's referring to the database ID of
-// references. Other uses of "ID", like airline code, airport code, or
-// flight code, use some other terminology (like "code").
+// references. Other uses of "ID", like airline code, airport code,
+// or flight code, use some other terminology (like "code").
 
 
 $426_ROOT_URL = "http://comp426.cs.unc.edu:3001/"
@@ -1747,6 +1747,7 @@ let db_login = function() {
 // simply a reference. This is the constructor. It is only used once
 // and is called only by _db_login().
 // Do not create this object.
+// TODO Comment this!
 let _db_426Airports = function() {
 
     this.airports = {};
@@ -1772,7 +1773,7 @@ let _db_426Airports = function() {
 
             let t = this.airportsByCode[txt];
             if (t !== undefined) {
-                out.push(t)
+                out.push(t["id"])
             }
 
         } 
@@ -1784,7 +1785,7 @@ let _db_426Airports = function() {
                 || value["name"].toLowerCase().startsWith(txt)
                 || value["city"].toLowerCase().startsWith(txt)
             ) {
-                out.push(this.airports[key]);
+                out.push(key);
                 if (out.length === 10) {
                     return out;
                 }
@@ -1840,12 +1841,14 @@ let _db_426Airports = function() {
 // Probably should be deleted before launch.
 // Basically just used for testing.
 let _db_on_airport_load = function(obj) {
-
-    return; 
-    //let a = $426Airports.get_dests(1611);
-    //a.push("1611");
-    //$426Map.add_airports(a);
-    //$426Map.add_paths(1611);
+        return;
+    if ($426Map.get_map() == null) {
+        setTimeout(_db_on_airport_load, 500);
+    }
+    $426Map.set_airports($426Airports.get_dests(1611));
+    $426Map.draw_airports($426Map.get_airports())
+    $426Map.draw_airportSource(1611);
+    $426Map.draw_paths();
 
 }
 

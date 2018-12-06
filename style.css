@@ -1,18 +1,129 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+div#controls-container {
+    margin-top: 1.25em;
+    margin-left: 0;
+    margin-right: 0;
+    align-content: center;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+div#controls-autocomplete-container {
+    position: absolute;
+}
+div#controls-itinerary-button {
+    border-style: solid;
+    border-width: 0.3em 0.3em 0em 0.3em;
+    color: black;
+    position: absolute;
+    margin: 0px;
+    padding: 0.2em;
+    right: -5em;
+    top: 18em;
+    opacity: 0.3;
+    transform: rotate(-90deg);
+    z-index: 1;
+    border-top-left-radius: 25px;
+    border-top-right-radius: 25px;
+}
+div#controls-itinerary-button p {
+    margin: inherit;
+    padding: inherit;
+}
+div#controls div.autocomplete {
+    background: grey;
+    border-color: black;
+    border-style: solid;
+    border-width: 0.24em 0.12em;
+    color: white;
+    font-size: 0.5em;
+    text-align: center;
+}
+/* Border width of autocomplete must be twice input */
+div#controls input {
+    background-color: grey;
+    color: white;
+    font-size: 2em;
+    margin: 0.5em auto;
+    text-align: center;
+}
+div#controls input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: white;
+    opacity: 0.8; /* Firefox */
+}
+div#controls p {
+    font-size: 2em;
+}
+div#controls p.arrow{
+    margin: 0;
+    font-size: 4em !important;
+}
+div#itinerary {
+    background: grey;
+    border-color: black;
+    border-style: solid;
+    border-width: 0px;
+    border-radius: 25px;
+    height: 83%;
+    position: absolute;
+    width: 0px;
+    right: 8px;
+    transition: all 1.0s ease;
+    -webkit-animation: all 1.0s ease;
+    user-select: none;
+    -moz-user-select: -moz-none;
+    z-index: 5;
+}
+div#itinerary:hover, div#itinerary.itinerary-show {
+    border-width: 0.2em;
+    width: 40%;
+    transition: all 1.5s ease;
+    -webkit-animation: all 1.5s ease;
+}
 div#map {
     bottom: 0;
     position: absolute;
-    top: 0; 
+    top: 0;
     width: 100%;
     z-index: -99;
+}
+div#ticket {
+    background: blue;
+    border-top-right-radius: 25px;
+    border-bottom-right-radius: 25px;
+    height: 83%;
+    position: absolute;
+    width: 0px;
+    right: 8px;
+    transition: all 1.5s ease;
+    -webkit-animation: all 1.5s ease;
+    visibility: hidden;
+    z-index: 5;
+}
+div#ticket.ticket-show {
+    width: 40%;
+    transition: all 2.0s ease;
+    -webkit-animation: all 2.0s ease;
+    visibility: visible;
+}
+div.autocomplete:hover {
+    background: blue !important;
 }
 .hidden {
     display: none;
 }
 .marker-airport {
-    background-color: blue;
+    /*background-color: blue;*/
+    border-radius: 16px;
+    border-style: solid;
+    border-width: 0.05em;
     cursor: pointer;
-    height: 15px;
-    width: 15px;
+    height: 16px;
+    user-select: none;
+    -moz-user-select: -moz-none;
+    width: 16px;
 }
 .pointer {
     cursor: pointer !important;

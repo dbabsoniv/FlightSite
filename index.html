@@ -11,7 +11,7 @@
             href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.51.0/mapbox-gl.css"
             type="text/css"
             rel="stylesheet" 
-        />
+        >
         <!--<link
             href="https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.css"
             type="text/css"
@@ -22,11 +22,36 @@
         <title>WE NEED A TITLE</title>
     </head>
     <body>
-    <div id="controls" class="hidden">
+    <div id="controls">
+        <div id="controls-container">
+            <div id="controls-src-container">
+                <input
+                    type="text" id="controls-airport-src"
+                    placeholder="Origin: City or Airport"
+                    size="25" spellcheck="false"
+                >
+            </div>
+            <div>
+                <p class="arrow">⇒</p>
+            </div>
+            <div id="controls-dest-container">
+                <input
+                    type="text" id="controls-airport-dest"
+                    placeholder="Destination: Choose An Origin First"
+                    size="25" spellcheck="false"
+                >
+            </div>
+        </div>
+        <div id="controls-itinerary-button">
+            <p>⇊ Itineraries ⇊</p>
+        </div>
+        <div id="controls-autocomplete-container"></div>
     </div>
     <div id="flights" class="hidden">
     </div>
-    <div id="itinerary" class="hidden">
+    <!--FIXME Nonbreaking space is for testing only. Should be removed.-->
+    <div id="itinerary">
+        &nbsp;
     </div>
     <div id="map">
     </div>

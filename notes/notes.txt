@@ -78,6 +78,9 @@ Ability to accept a confirmation code or email into its search
 functionality and run that search immediately (like after a flight
 is bought)
 
+Ticket panel should be animated in a similar way to the way the
+Itinerary panel is, just without the hover.
+
 -------------
 General Notes:
 
