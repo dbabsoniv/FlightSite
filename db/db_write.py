@@ -888,12 +888,3 @@ def update_routes():
         route.planeID = plane_codes[route.planeUsed].id
 
 if __name__ == "__main__":
-
-    login()
-    with open("airport_fuckup.csv", "w+", newline="") as f:
-        r = SESSION.get(API + "airports")
-        for airport in r.json():
-            if airport["info"] is None:
-                f.write(str(airport))
-                f.write("\n")
-            
