@@ -62,6 +62,10 @@ div#controls p.arrow{
 }
 div#itinerary {
     background: grey;
+    border-color: black;
+    border-style: solid;
+    border-width: 0px;
+    border-radius: 25px;
     height: 83%;
     position: absolute;
     width: 0px;
@@ -73,10 +77,7 @@ div#itinerary {
     z-index: 5;
 }
 div#itinerary:hover, div#itinerary.itinerary-show {
-    border-color: black;
-    border-style: solid;
     border-width: 0.2em;
-    border-radius: 25px;
     width: 40%;
     transition: all 1.5s ease;
     -webkit-animation: all 1.5s ease;
