@@ -1,11 +1,7 @@
-mapboxgl.accessToken = "pk.eyJ1IjoicmVwcmljZSIsImEiOiJjanA0eDRhNXIwbTk5M29wN2MwM2owcDQ5In0.gbdqFh77Q8t0lfwBYmKnfg";
-
 $426Map = new function() {
 
     // FIXME Autocomplete window needs to be killed when 
     // clicking a route.
-
-    // FIXME Cheyenne doesn't work.
 
     this.LINE_COLOR = "#17A589";
     this.LINE_WIDTH = 5;
