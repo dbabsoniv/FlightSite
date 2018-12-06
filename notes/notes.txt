@@ -14,9 +14,15 @@ this case.
 
 ID Ranges (Inclusive):
 AIRLINE ID RANGE: [66, 107]
-AIRPORT ID RANGE: [1465, 1982]
+AIRPORT ID RANGE: [1465, 1982] THERE ARE EXCEPTIONS
 FLIGHT ID RANGE: [1836, 18691]
 PLANE ID RANGE: [63, 113]
+AIRPORT IDs DELETED: {
+1479, 1496, 1528, 1534, 1549, 1567, 1594, 1669, 1520, 1556, 1580,
+1613, 1643, 1664, 1527, 1530, 1542, 1551, 1605, 1608, 1620, 1644,
+1693, 1717, 1768, 1751, 1766, 1814, 1823, 1752, 1827, 1872, 1897,
+1899, 1902, 1912, 1918, 1921, 1948, 1959
+}
 
 ---------
 Git tips:
@@ -71,5 +77,9 @@ our database.
 
 REPIII cannot spell the words "departure" and "success". This has
 literally caused hours of bugs lol just a heads up for future bugs.
+
+airports_id_by_airlines.csv and airports_id_by_flights.csv reflect
+the current database. They do not include the airports that had no
+flights that were removed from the database
 
 Client link: http://comp426.cs.unc.edu:3001/client
