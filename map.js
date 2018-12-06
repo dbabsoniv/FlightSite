@@ -5,6 +5,8 @@ $426Map = new function() {
     // FIXME Autocomplete window needs to be killed when 
     // clicking a route.
 
+    // FIXME Cheyenne doesn't work.
+
     this.LINE_COLOR = "#17A589";
     this.LINE_WIDTH = 5;
 
