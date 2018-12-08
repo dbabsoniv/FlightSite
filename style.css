@@ -21,7 +21,7 @@ div#controls-itinerary-button {
     margin: 0px;
     padding: 0.2em;
     right: -5em;
-    top: 18em;
+    top: 45vh;
     opacity: 0.3;
     transform: rotate(-90deg);
     z-index: 1;
