@@ -13,6 +13,7 @@ $426Map = new function() {
     this._paths = null;
     this._pathActive = null;
     this._popups = [];
+    this._reverse = false;
 
     // Clears the map of all lines, markers, and popups.
     this.clear = () => {
@@ -99,13 +100,33 @@ $426Map = new function() {
                 bounds[1][1] = lat;
             }
 
-            let gen = new arc.GreatCircle(longLatSrc, {
-                "x": lng,
-                "y": lat,
-            });
+            let gen = undefined;
+            if (this.get_reverse()) {
+                gen = new arc.GreatCircle({
+                    "x": lng,
+                    "y": lat,
+                }, longLatSrc
+                );
+            } else {
+                gen = new arc.GreatCircle(longLatSrc, {
+                    "x": lng,
+                    "y": lat,
+                });
+
+            } 
             arcs[ident] = gen.Arc(
                 ARC_TICKS, {"offset": 10}
-            ).geometries[0].coords,
+            ).geometries[0].coords;
+
+            let dest = undefined;
+            let src = undefined; 
+            if (this.get_reverse()) {
+                dest = this.get_airportSource();
+                src = +ident;
+            } else {
+                dest = +ident;
+                src = this.get_airportSource();
+            }
 
             features.push({
                 "geometry": {
@@ -114,8 +135,8 @@ $426Map = new function() {
                 },
                 "properties": {
                     "color": $426Map.LINE_COLOR,
-                    "idDest": +ident,
-                    "idSrc": this.get_airportSource(),
+                    "idDest": dest,
+                    "idSrc": src,
                     "width": $426Map.LINE_WIDTH,
                 },
                 "type": "Feature",
@@ -144,9 +165,16 @@ $426Map = new function() {
         let animation;
         let animate = () => {
 
+            let propWhere= undefined; 
+            if (this.get_reverse()) {
+                propWhere = "idSrc";
+            } else {
+                propWhere = "idDest";
+            }
+            
             for (let feat of layer["source"]["data"]["features"]) {
                 feat["geometry"]["coordinates"].push(
-                    arcs[feat["properties"]["idDest"]][i]
+                    arcs[feat["properties"][propWhere]][i]
                 );
             }
             this._map.getSource("paths").setData(packet);
@@ -194,8 +222,12 @@ $426Map = new function() {
             return -2;
         }
 
+        let color = "#0000FF";
+        if (this.get_reverse()) {
+            color = "#FF0000";
+        }
         for (let ident of airports) {
-            this._airport_draw(ident, "#0000FF");
+           this._airport_draw(ident, color);
         }
 
         return true;
@@ -258,7 +290,11 @@ $426Map = new function() {
             return false;
         }
 
-        this._airport_draw(this._airportSource, "#FF0000");
+        let color = "#FF0000";
+        if (this.get_reverse()) {
+            color = "#0000FF";
+        }
+        this._airport_draw(this._airportSource, color);
 
         return true;
 
@@ -273,6 +309,28 @@ $426Map = new function() {
     this.get_airportSource = () => { return this._airportSource; }
     // Gets the MapBox map object.
     this.get_map = () => { return this._map; }
+    this.get_reverse = () => { return this._reverse; }
+
+    this.redraw = (ident) => {
+
+        if (typeof(ident) !== "number") {
+            ident = this.get_airportSource();
+            if (
+                ident == null || !Array.isArray(this.get_airports())
+            ) {
+                return false;
+            }
+        }
+
+        this.clear();
+        this.set_airports($426Airports.get_dests(ident));
+        this.airportSource_draw(ident);
+        this.airports_draw(this.get_airports());
+        this.paths_draw();
+
+        return true;
+
+    }
 
     this.reset = () => {
 
@@ -289,6 +347,8 @@ $426Map = new function() {
         if (this._paths == null) {
             return -1;
         }
+
+        $426Controls.clear_autocomplete();
 
         let color = "#FF0000";
         let ret = false;
@@ -325,6 +385,8 @@ $426Map = new function() {
             }
 
             this._map.getSource("paths").setData(data);
+            console.log(idDest);
+            console.log(idSrc);
             $426Controls.set_input_dest(idDest);
             $426Controls.set_input_src(idSrc);
 
@@ -402,6 +464,16 @@ $426Map = new function() {
 
     }
 
+    this.set_reverse = (bool) => {
+        if (typeof(bool) !== "boolean") {
+            return false;
+        } else {
+            this._reverse = bool;
+            return true;
+        }
+
+    }
+
 }
 
 // Local helper function. You probably don't want to be calling this.
@@ -411,7 +483,7 @@ let map_pointer = function(e) {
 
 // Only load the map if testing the map directly.
 // There is an API limit.
-/*
+
 $(document).ready(() => {
 
     $426Map._map = new mapboxgl.Map({
@@ -425,8 +497,16 @@ $(document).ready(() => {
     $426Map.get_map().on("mouseenter", "paths", map_pointer);
     $426Map.get_map().on("mouseleave", "paths", map_pointer);
     $426Map.get_map().on(
-        "focus", "map", $426Controls.clear_autocomplete
-    );
+        "click", function() {
+            $426Controls.clear_autocomplete();
+            $426Controls.input_reset();
+    });
+    $426Map.get_map().on(
+        "drag", function() {
+            $426Controls.clear_autocomplete();
+            $426Controls.input_reset();
+    });
+
 
 });
-*/
+
