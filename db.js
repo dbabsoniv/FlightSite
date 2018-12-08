@@ -1,3 +1,4 @@
+// DB.JS //
 //TODO REMEMBER TO CLEAN ALL USER INPUT.
 //TODO USER INPUT MUST HAVE A MAX LENGTH.
 //
@@ -1721,6 +1722,13 @@ let db_login = function() {
 // TODO Comment this!
 let _db_426Airports = function() {
 
+    this.ILLEGAL_AIRPORT_IDS = [
+        1479, 1496, 1528, 1534, 1549, 1567, 1594, 1669, 1520, 1556,
+        1580, 1613, 1643, 1664, 1527, 1530, 1542, 1551, 1605, 1608,
+        1620, 1644, 1693, 1717, 1768, 1751, 1766, 1814, 1823, 1752,
+        1827, 1872, 1897, 1899, 1902, 1912, 1918, 1921, 1948, 1959
+    ]
+
     this.airports = {};
     this.airportsByCode = {};
 
@@ -1767,6 +1775,41 @@ let _db_426Airports = function() {
         }
 
         return out;
+
+    }
+
+    /*
+     *  Checks whether or not a provided airport ID is valid. 
+     *
+     *  Parameters
+     *  ----------
+     *  ident   : (Number - Integer) airport ID to check.
+     *
+     *  Returns
+     *  -------
+     *  false   : ident is not a valid airport ID.
+     *  true    : ident is a valid airport ID.
+     *
+     */ 
+    this.is_airport_id = (ident) => {
+
+        if (typeof(ident) !== "number") {
+
+            return false;
+
+        } else if (ident > 1982 || ident < 1465) {
+
+            return false;
+
+        } else if (this.ILLEGAL_AIRPORT_IDS.includes(ident)) {
+
+            return false;
+
+        } else {
+
+            return true;
+
+        }
 
     }
 
