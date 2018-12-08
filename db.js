@@ -1737,6 +1737,8 @@ let _db_426Airports = function() {
 
     this.autocomplete = (txt) => {
 
+        const NUM_RETURNS = 9;
+
         let out = [];
         txt = txt.toLowerCase()
 
@@ -1757,7 +1759,7 @@ let _db_426Airports = function() {
                 || value["city"].toLowerCase().startsWith(txt)
             ) {
                 out.push(key);
-                if (out.length === 10) {
+                if (out.length === NUM_RETURNS) {
                     return out;
                 }
             }
