@@ -1,7 +1,8 @@
+// CONTROLS.JS //
 $426Controls = new function() {
 
-    //FIXME Have clicking airport select route.
-
+    // These can be positive or negative. It's incredibly hacky but
+    // it works.
     this._dest = null;
     this._src = null;
 
@@ -118,13 +119,15 @@ $426Controls = new function() {
         ) {
             $426Map.redraw(ident);
             if (source === "src") {
+                this._dest = null;
                 this.clear_input_dest();
             } else {
+                this._src = null;
                 this.clear_input_src();
             }
         } else {
 
-            $426Map.path_select(
+            $426Map.select_path(
                 null, this.get_dest(), this.get_src()
             );
 
@@ -146,7 +149,7 @@ $426Controls = new function() {
 
     this.clear_input_dest = () => {
         if (this._dest != null && this._dest > 0) {
-            $426Map.path_select(null, null, null);
+            $426Map.select_path(null, null, null);
             $("input#controls-airport-dest").val("");
             if ($426Map.get_reverse()) {
                 $426Map.set_reverse(false);
@@ -157,13 +160,13 @@ $426Controls = new function() {
 
     this.clear_input_src = () => {
         if (this._src != null && this._src > 0) {
-            $426Map.path_select(null, null, null);
+            $426Map.select_path(null, null, null);
             $("input#controls-airport-src").val("");
         }  
         this._src = -this.src;
     }
 
-    this.input_reset = () => {
+    this.reset_input = () => {
     
         if (this.get_dest() != null) {
             if (this._dest < 0) {

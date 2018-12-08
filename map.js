@@ -1,7 +1,5 @@
+// MAP.JS //
 $426Map = new function() {
-
-    // FIXME Autocomplete window needs to be killed when 
-    // clicking a route.
 
     this.LINE_COLOR = "#17A589";
     this.LINE_WIDTH = 5;
@@ -34,7 +32,7 @@ $426Map = new function() {
 
     // Draws paths from this._airportSource to all airports in
     // this._airports.
-    this.paths_draw = () => {
+    this.draw_paths = () => {
 
         let airports = this.get_airports();
 
@@ -327,7 +325,7 @@ $426Map = new function() {
         this.set_airports($426Airports.get_dests(ident));
         this.airportSource_draw(ident);
         this.airports_draw(this.get_airports());
-        this.paths_draw();
+        this.draw_paths();
 
         return true;
 
@@ -343,7 +341,7 @@ $426Map = new function() {
         // Get and draw random airports.
     }
 
-    this.path_select = (e, idDest, idSrc) => {
+    this.select_path = (e, idDest, idSrc) => {
 
         if (this._paths == null) {
             return -1;
@@ -494,18 +492,18 @@ $(document).ready(() => {
         zoom: 4,
     });
 
-    $426Map.get_map().on("click", "paths", $426Map.path_select);
+    $426Map.get_map().on("click", "paths", $426Map.select_path);
     $426Map.get_map().on("mouseenter", "paths", map_pointer);
     $426Map.get_map().on("mouseleave", "paths", map_pointer);
     $426Map.get_map().on(
         "click", function() {
             $426Controls.clear_autocomplete();
-            $426Controls.input_reset();
+            $426Controls.reset_input();
     });
     $426Map.get_map().on(
         "drag", function() {
             $426Controls.clear_autocomplete();
-            $426Controls.input_reset();
+            $426Controls.reset_input();
     });
 
     $("div#map").on("click", ".marker-airport", function(e) {
@@ -522,12 +520,11 @@ $(document).ready(() => {
         // Clicking a marker will often click a path.
         // This will make it so the marker takes precedence.
         setTimeout(
-            $426Map.path_select(null, dest, src),
+            $426Map.select_path(null, dest, src),
             50
         );
        
     });
-
 
 });
 
