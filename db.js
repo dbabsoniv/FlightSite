@@ -1727,7 +1727,7 @@ let _db_426Airports = function() {
         1580, 1613, 1643, 1664, 1527, 1530, 1542, 1551, 1605, 1608,
         1620, 1644, 1693, 1717, 1768, 1751, 1766, 1814, 1823, 1752,
         1827, 1872, 1897, 1899, 1902, 1912, 1918, 1921, 1948, 1959
-    ]
+    ];
 
     this.airports = {};
     this.airportsByCode = {};
@@ -1737,7 +1737,9 @@ let _db_426Airports = function() {
 
     // This returns an array of strings, not integers, because of
     // the way JavaScript handles keys.
-    this.get_dests = (id) => { return Object.keys(this.airports[id]["info"]); }
+    this.get_dests = (id) => {
+        return Object.keys(this.airports[id]["info"]);
+    }
 
     this.get_lat = (id) => { return +this.airports[id]["latitude"]; }
     this.get_long = (id) => { return +this.airports[id]["longitude"]; }
@@ -1757,7 +1759,7 @@ let _db_426Airports = function() {
                 out.push(t["id"])
             }
 
-        } 
+        }
 
         for (const [key, value] of Object.entries(this.airports)) {
 

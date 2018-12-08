@@ -1,22 +1,30 @@
 // MAP.JS //
 $426Map = new function() {
 
+    // There are no plans of making getters and setters for markers
+    // and popups. They should never be publicly referenced.
+
     this.LINE_COLOR = "#17A589";
     this.LINE_WIDTH = 5;
 
     this._airports = [];
-    this._airportSource;
+    this._airportSource = null;
     this._map = undefined;
     this._markers = {};
+    this._new = true;
     this._paths = null;
+    // FIXME Is pathActive ever used? I don't think I was able to use
+    // FIXME it when coloring the active line was I?
     this._pathActive = null;
     this._popups = [];
     this._reverse = false;
 
     // Clears the map of all lines, markers, and popups.
+    // This does not reset the map to its starting state.
+    // $426Map.reset() does that.
     this.clear = () => {
 
-        if (this._paths != null) {
+        if (this.get_paths() != null) {
             this._map.removeLayer("paths");
             this._paths = null;
         }
@@ -26,22 +34,160 @@ $426Map = new function() {
         Object.keys(this._markers).forEach((key) => {
             this._markers[key].remove();
         });
+        this._airportSource = null;
+        this._pathActive = null;
         this._popups = [];
         this._markers = {};
     }
 
-    // Draws paths from this._airportSource to all airports in
-    // this._airports.
+    /*
+     *  Draws airport markers and associated popups on the map.
+     *
+     *  This method doesn't clear anything. It is up to the caller to
+     *  clear the map before calling this function, if that is the
+     *  callers intention.
+     *
+     *  Parameters
+     *  ----------
+     *  airports    : (Array of Numbers - Integers OR an Array of
+     *                Strings composed of digit characters)
+     *                An array of airport IDs. These airports will
+     *                be drawn on the map.
+     *
+     *  Returns
+     *  -------
+     *  -1  : airports is not an array
+     *  -2  : airports is not composed of integers, whether they be
+     *        represented by numbers or strings.
+     *  true: airports were drawn onto the map.
+     *
+     *  Notes
+     *  -----
+     *  This method does not ensure that the airports drawn onto the
+     *  map are in the map's window. The map is not moved as the
+     *  airports are drawn.
+     */
+    this.draw_airports = (airports) => {
+
+        // These checks are needed for the map load array. 
+        if (!Array.isArray(airports)) {
+            return -1;
+        } else if (
+            typeof(airports[0]) !== "number"
+            && (typeof(airports[0]) === "string"
+            && airports[0].search(/^\d+$/) < 0)
+        ) {
+            return -2;
+        }
+
+        let color = "#0000FF";
+        if (this.get_reverse()) {
+            color = "#FF0000";
+        }
+        for (let ident of airports) {
+           this._draw_airports(ident, color);
+        }
+
+        return true;
+
+    }
+
+    /*
+     *  Draw the source airport onto the map.
+     *
+     *  Parameters
+     *  ----------
+     *  source  : (Number - Integer) OPTIONAL parameter. If this is
+     *            given, then this._airportSource is set to the given
+     *            arugment source. If the caller wants to use the
+     *            already in-place this._airportSource, pass null.
+     *
+     *  Returns
+     *  -------
+     *  -1      : source was not a number and this._airportSource
+     *            is null.
+     *  -2      : source is not a valid airport ID. 
+     *  true    : Source airport was drawn onto the map.
+     */ 
+    this.draw_airportSource = (ident) => {
+
+        if (typeof(ident) === "number") {
+
+            if (!$this.set_airportSource(ident)) {
+
+                return -2;
+
+            } 
+        
+        } else if (this.get_airportSource() == null) {
+
+            return -1;
+
+        }
+
+        let color = "#FF0000";
+        if (this.get_reverse()) {
+            color = "#0000FF";
+        }
+        this._draw_airports(this.get_airportSource(), color);
+
+        return true;
+
+    }
+
+    // Helper function. Don't call this.
+    // Call this.draw_airports() or this.draw_airportSource() instead.
+    //
+    // Don't put complicated checks in this function. It's a helper.
+    // Put the checks in its parents.
+    this._draw_airports  = (ident, color) => {
+
+            if (color == null || color === "") {
+                color = "#0000FF";
+            }
+
+            // Order of these operations matter.
+            // Don't go flipping them in alphabetical order REPIII.
+            let el = document.createElement("div");
+            el.className = "marker-airport";
+            $(el).css("background-color", color);
+            $(el).attr("data-ident", ident);
+            let marker = new mapboxgl.Marker({
+                element: el
+            });
+            let popup = new mapboxgl.Popup({
+                closeButton: false,
+                className: "popup-airport",
+            });
+            // TODO Write better airport text.
+            popup.setText($426Airports.get_city(+ident));
+            marker.setLngLat([
+                $426Airports.get_long(+ident),
+                $426Airports.get_lat(+ident)
+            ]);
+            marker.setPopup(popup);
+            marker.addTo(this._map);
+            this._markers[ident] = marker;
+            this._popups.push(popup);
+
+    }
+
+    /*
+     *  Draws paths from this._airportSource to all airports in
+     *  this._airports.
+     * 
+     *  Returns
+     *  -------
+     *  -1  : this._airportSource is null
+     *  -2  : this._airports is not an array.
+     *  true: Paths were draw on the map    
+     */
     this.draw_paths = () => {
 
-        let airports = this.get_airports();
-
-        if (
-            airports == null
-            || airports < 1
-            || airports == null
-        ) {
-            return false;
+        if (this.get_airportSource() == null) {
+            return -1;
+        } else if (!Array.isArray(this.get_airports())) {
+            return -2;
         }
 
         this._paths = null;
@@ -49,8 +195,8 @@ $426Map = new function() {
         let arcs = {};
         const ARC_TICKS = 125;
         // [[LONG_MIN, LAT_MIN], [LONG_MAX, LAT_MAX]]
-        let aslo = $426Airports.get_long(this._airportSource);
-        let asla = $426Airports.get_lat(this._airportSource);
+        let aslo = $426Airports.get_long(this.get_airportSource());
+        let asla = $426Airports.get_lat(this.get_airportSource());
         let bounds = [
             [aslo, asla],
             [aslo, asla]
@@ -80,7 +226,7 @@ $426Map = new function() {
             }
         }
 
-        for (const ident of airports) {
+        for (const ident of this.get_airports()) {
 
             let lat = $426Airports.get_lat(ident);
             let lng = $426Airports.get_long(ident);
@@ -188,175 +334,191 @@ $426Map = new function() {
     }
 
     /*
-     *  Draws airport markers and associated popups on the map.
-     *
-     *  This method doesn't clear anything. It is up to the caller to
-     *  clear the map before calling this function, if that is the
-     *  callers intensions.
-     *
-     *  Parameters
-     *  ----------
-     *  airports    : (Array of Numbers - Integers OR an Array of
-     *                Strings composed of digit characters)
-     *                An array of airport IDs. These airports will
-     *                be drawn on the map.
+     *  Gets the airport IDs currently associated with the map.
+     *  These IDs do NOT include this._airportSource. 
      *
      *  Returns
      *  -------
-     *  -1  : airports is not an array
-     *  -2  : airports is not composed of integers, whether they be
-     *        represented by numbers or strings..
-     *  true: airports were drawn onto the map.
+     *  airports: (Array of Integers or Strings Representing
+     *            Integers) The array of airport IDs currently
+     *            associated with the map. 
      */
-    this.airports_draw = (airports) => {
-
-        if (!Array.isArray(airports)) {
-            return -1;
-        } else if (
-            typeof(airports[0]) !== "number"
-            && (typeof(airports[0]) === "string"
-            && airports[0].search(/^\d+$/) < 0)
-        ) {
-            return -2;
-        }
-
-        let color = "#0000FF";
-        if (this.get_reverse()) {
-            color = "#FF0000";
-        }
-        for (let ident of airports) {
-           this._airport_draw(ident, color);
-        }
-
-        return true;
-
-    }
-
-    // Helper function. Don't call this.
-    // Call this.airport_draws() or this.airport_drawSource() instead.
-    this._airport_draw  = (ident, color) => {
-
-            if (color == null || color === "") {
-                color = "#0000FF";
-            }
-
-            // Order of these operations matter.
-            // Don't go flipping them in alphabetical order REPIII.
-            let el = document.createElement("div");
-            el.className = "marker-airport";
-            $(el).css("background-color", color);
-            $(el).attr("data-ident", ident);
-            let marker = new mapboxgl.Marker({
-                element: el
-            });
-            let popup = new mapboxgl.Popup({
-                closeButton: false,
-                className: "popup-airport",
-            });
-            popup.setText($426Airports.get_city(+ident));
-            marker.setLngLat([
-                $426Airports.get_long(+ident),
-                $426Airports.get_lat(+ident)
-            ]);
-            marker.setPopup(popup);
-            marker.addTo(this._map);
-            this._markers[ident] = marker;
-            this._popups.push(popup);
-
-    }
-
-    /*
-     *  Draw the source airport onto the map.
-     *
-     *  Parameters
-     *  ----------
-     *  source  : (Number - Integer) OPTIONAL parameter. If this is
-     *            given, then this._airportSource is set to the given
-     *            arugment source. If the caller wants to use the
-     *            already in-place this._airportSource, pass null.
-     *
-     *  Returns
-     *  -------
-     *  false   : Provided source was not a number and
-     *            this_.airportSource is null
-     *  true    : Source airport was drawn onto the map.
-     */ 
-    this.airportSource_draw = (source) => {
-
-        if (typeof(source) === "number") {
-            this._airportSource = source;
-        } else if (this._airportSource == null) {
-            return false;
-        }
-
-        let color = "#FF0000";
-        if (this.get_reverse()) {
-            color = "#0000FF";
-        }
-        this._airport_draw(this._airportSource, color);
-
-        return true;
-
-    }
-
-    // Gets the airport IDs currently associated with the map, an
-    // array of integers or an array of strings representing
-    // integers.
     this.get_airports = () => { return this._airports; }
     // Gets the ID of the source airport currently associated with
     // the map.
     this.get_airportSource = () => { return this._airportSource; }
     // Gets the MapBox map object.
     this.get_map = () => { return this._map; }
+    // Gets the boolean indicating whether or not the map is in a new
+    // state.
+    this.get_new = () => { return this._new; }
+    // Gets paths. Paths can be null.
+    this.get_paths = () => { return this._paths; }
+    // Gets the boolean determining whether the this._airportSource
+    // is a destination (true) or a source (false).
     this.get_reverse = () => { return this._reverse; }
 
+    /* FIXME
+     * As of commit 10a2ade58199de31e1288981fd4cd6267362659b
+     * this is currently only used by one line in Controls.js,
+     * and really it's quite a dangerous method. It should probably be
+     * removed from here and put back into Controls.js. It originated
+     * there.
+     FIXME */
+    /*
+     *  Redraws the map. This function can set a new airport source,
+     *  if provided.
+     *
+     *  Parameters
+     *  ----------
+     *  ident   : (Number - Integer) ID of the source airport of the
+     *            new map. Can be null if you do not wish to reset
+     *            the source airport to a new airport.
+     *
+     *  Returns
+     *  -------
+     *  -1      : ident was not a number and this._airportSource is
+     *            null.
+     *  -2      : this._airports is not an array.
+     *  -3      : ident was not a valid airport ID.
+     *  true    : Map was successfully redrawn.
+     *
+     */
     this.redraw = (ident) => {
 
-        if (typeof(ident) !== "number") {
-            ident = this.get_airportSource();
-            if (
-                ident == null || !Array.isArray(this.get_airports())
-            ) {
-                return false;
+        if (typeof(ident) === "number") {
+
+           if (!$426Airports.is_airport_id(ident)) {
+
+                return -3;
+
             }
+
+        } else {
+
+            ident = this.get_airportSource();
+
+        }
+
+        // This is meant to be a new logic block.
+        if (ident == null) {
+            return -1;
+        } else if (!Array.isArray(this.get_airports())) {
+            return -2;
         }
 
         this.clear();
-        this.set_airports($426Airports.get_dests(ident));
-        this.airportSource_draw(ident);
-        this.airports_draw(this.get_airports());
+        // Yes you must set the airport source to ident.
+        // this.clear() clears it.
+        this.set_airportSource(ident); 
+        this.set_airports($426Airports.get_dests(
+            this.get_airportSource())
+        );
+        this.draw_airportSource();
+        this.draw_airports(this.get_airports());
         this.draw_paths();
 
         return true;
 
     }
 
+    // Resets the map to it's initial state. Randomly chosen airports
+    // are random.
     this.reset = () => {
 
+        this.set_new(true);
         this.clear();
-        this._map.flyTo({
+        this.getMap().flyTo({
             center: [-99.9995795, 48.3552767],
             zoom: 4,
         });
-        // Get and draw random airports.
+        // TODO Get and draw random airports.
     }
 
+    // Selects an airport marker and updates paths accordingly.
+    // You probably don't want to call this.
+    this.select_airport = (e) => {
+
+        let dest = undefined;
+        let src = undefined;
+        if ($426Map.get_reverse()) {
+            dest = $426Map.get_airportSource();
+            src = +$(e.target).attr("data-ident");
+        } else {
+            dest = +$(e.target).attr("data-ident");
+            src = $426Map.get_airportSource(); 
+        }
+
+        if (dest === src) {
+            return;
+        }
+
+        // Clicking a marker will often click a path.
+        // This will make it so the marker takes precedence.
+        // REPIII is unsure if this matters.
+        setTimeout(() => {
+                $426Map.select_path(null, dest, src);
+            }, 10
+        );
+ 
+    }
+
+    /*
+     *  Selects a path on the map, opens the Tickets panel, and sets
+     *  the input boxes to the airports implied by the path selected. 
+     *
+     *  This is what makes lines red.
+     *
+     *  this._paths cannot be null when this method is called.
+     *
+     *  All parameters are optional. Functionality differs depending
+     *  on what functions are provided.
+     *
+     *  Parameters
+     *  ----------
+     *  e       : (Event Object) Event object associated with
+     *            clicking a path. This MUST be null otherwise.
+     *  idDest  : (Number - Integer) ID of the destination airport.
+     *            Can be null.
+     *  idSrc   : (Number - Integer) Id of the source airport. Can be
+     *            null.
+     *
+     *  Returns
+     *  -------
+     *  -1      : this._paths is null
+     *  false   : idDest or idSrc was undefined. Ticket panel was not
+     *            opened.
+     *  true    : idDest and idSrc were defined in some manner, maybe
+     *            via e. Ticket panel has been opened.
+     *
+     *  Notes
+     *  -----
+     *  If you wish to deselect a path, recolouring it, call this
+     *  function: $426Map.select_path(null, null, null).
+     *
+     *  idDest and idSrc are not tolerant arguments. They will not
+     *  accept strings representing integers. You must do the casting
+     *  before calling this method.
+     *
+     *  If e is provided, then idDest and idSrc are overridden. The
+     *  values from e have precedence.
+     */ 
     this.select_path = (e, idDest, idSrc) => {
 
-        if (this._paths == null) {
+        if (this.get_paths() == null) {
             return -1;
         }
 
         $426Controls.clear_autocomplete();
 
         let color = "#FF0000";
-        let ret = false;
         let width = 7;
 
         if (e != null) { 
 
             idDest = e.features[0].properties.idDest;
             idSrc = e.features[0].properties.idSrc;
+            ret = true;
 
         } else if (
             typeof(idDest) !== "number"
@@ -364,38 +526,41 @@ $426Map = new function() {
         ) {
             color = $426Map.LINE_COLOR;
             width = $426Map.LINE_WIDTH;
+        } 
+
+        let data = this.get_paths().source.data;
+        for (let line of data.features) {
+
+            if (
+                idDest === line.properties.idDest
+                && idSrc === line.properties.idSrc
+            ) {
+                line.properties.color = color;
+                line.properties.width = width;
+            } else {
+                line.properties.color = $426Map.LINE_COLOR;
+                line.properties.width = $426Map.LINE_WIDTH;
+            }
         }
 
-        if (this._paths != null) {
+        this._map.getSource("paths").setData(data);
 
-            let data = this._paths.source.data;
-            for (let line of data.features) {
+        if (idDest == null || idSrc == null) {
 
-                if (
-                    idDest === line.properties.idDest
-                    && idSrc === line.properties.idSrc
-                ) {
-                    line.properties.color = color;
-                    line.properties.width = width;
-                } else {
-                    line.properties.color = $426Map.LINE_COLOR;
-                    line.properties.width = $426Map.LINE_WIDTH;
-                }
-            }
+            return false;
 
-            this._map.getSource("paths").setData(data);
-            console.log(idDest);
-            console.log(idSrc);
+        } else {
+
             $426Controls.set_input_dest(idDest);
             $426Controls.set_input_src(idSrc);
 
-            ret = true;
+            // TODO Send info to Tickets interface.
+            console.log(idSrc);
+            console.log(idDest);
+
+            return true;
 
         }
-
-        // TODO Send info to Tickets interface.
-
-        return ret;
 
     }
 
@@ -418,6 +583,9 @@ $426Map = new function() {
      *
      *  Notes
      *  -----
+     *  The checks do not extend to all array elements. The first is
+     *  check and the rest are assumed to be similarly correct.
+     *
      *  This method has not been tested since it was last updated.
      */
     this.set_airports = (airports) => {
@@ -429,6 +597,7 @@ $426Map = new function() {
             && typeof(airports[0]) !== "number"
             && (typeof(airports[0]) === "string"
             && airports[0].search(/^\d+$/) < 0)
+            && $426Airport.is_airport_id(+airports[0])
         ) {
             return -2;
         }
@@ -449,13 +618,16 @@ $426Map = new function() {
      *
      *  Returns
      *  -------
-     *  false   : source is not a number.
+     *  false   : source is not a valid airport ID
      *  true    : this._airportSource was set to source.
      */
-    this.set_airportSource = (source) => {
+    this.set_airportSource = (ident) => {
 
-        if (typeof(source) === "number") {
-            this._airportSource = source;
+        if (
+            typeof(ident) === "number"
+            && $426Airports.is_airport_id(ident)
+        ) {
+            this._airportSource = ident;
             return true;
         } else {
             return false;
@@ -463,7 +635,40 @@ $426Map = new function() {
 
     }
 
+    /*
+     *  Sets whether the map should exhibit a "new" state filled with
+     *  temporary airports that when clicked fill source.
+     * 
+     *  Parameters
+     *  ----------
+     *  bool: (Boolean) Boolean determining whether nor not the map
+     *        is now in a new state.
+     *
+     *  Returns
+     *  -------
+     *  false   : bool was not a boolean.
+     *  true    : bool was a boolean.
+     * 
+     *  Notes
+     *  -----
+     *  This DOES NOT call $426Map.reset(), which you should do if
+     *  you're setting this to true.
+     */
+    this.set_new = (bool) => {
+
+        if (typeof(bool) !== "boolean") {
+            return false;
+        } else {
+            this._new = bool;
+            return true;
+        }
+
+    }
+
+    // Sets the boolean determining whether airportSource is a
+    // destination or a source. (How to color airports, etc.)
     this.set_reverse = (bool) => {
+
         if (typeof(bool) !== "boolean") {
             return false;
         } else {
@@ -475,7 +680,8 @@ $426Map = new function() {
 
 }
 
-// Local helper function. You probably don't want to be calling this.
+// Local helper function for pointing at lines on the map.
+// You probably don't want to be calling this.
 let map_pointer = function(e) {
     $("canvas.mapboxgl-canvas").toggleClass("pointer");
 }
@@ -489,12 +695,9 @@ $(document).ready(() => {
         container: "map",
         style: "mapbox://styles/mapbox/light-v9",
         center: [-99.9995795, 48.3552767],
-        zoom: 4,
+        zoom: 3,
     });
 
-    $426Map.get_map().on("click", "paths", $426Map.select_path);
-    $426Map.get_map().on("mouseenter", "paths", map_pointer);
-    $426Map.get_map().on("mouseleave", "paths", map_pointer);
     $426Map.get_map().on(
         "click", function() {
             $426Controls.clear_autocomplete();
@@ -506,25 +709,13 @@ $(document).ready(() => {
             $426Controls.reset_input();
     });
 
-    $("div#map").on("click", ".marker-airport", function(e) {
+    $("div#map").on(
+        "click", ".marker-airport", $426Map.select_airport
+    );
 
-        let dest = undefined;
-        let src = undefined;
-        if ($426Map.get_reverse()) {
-            dest = $426Map.get_airportSource();
-            src = +$(e.target).attr("data-ident");
-        } else {
-            dest = +$(e.target).attr("data-ident");
-            src = $426Map.get_airportSource(); 
-        }
-        // Clicking a marker will often click a path.
-        // This will make it so the marker takes precedence.
-        setTimeout(
-            $426Map.select_path(null, dest, src),
-            50
-        );
-       
-    });
+    $426Map.get_map().on("click", "paths", $426Map.select_path);
+    $426Map.get_map().on("mouseenter", "paths", map_pointer);
+    $426Map.get_map().on("mouseleave", "paths", map_pointer);
 
 });
 
