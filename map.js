@@ -247,6 +247,7 @@ $426Map = new function() {
             let el = document.createElement("div");
             el.className = "marker-airport";
             $(el).css("background-color", color);
+            $(el).attr("data-ident", ident);
             let marker = new mapboxgl.Marker({
                 element: el
             });
@@ -505,6 +506,26 @@ $(document).ready(() => {
         "drag", function() {
             $426Controls.clear_autocomplete();
             $426Controls.input_reset();
+    });
+
+    $("div#map").on("click", ".marker-airport", function(e) {
+
+        let dest = undefined;
+        let src = undefined;
+        if ($426Map.get_reverse()) {
+            dest = $426Map.get_airportSource();
+            src = +$(e.target).attr("data-ident");
+        } else {
+            dest = +$(e.target).attr("data-ident");
+            src = $426Map.get_airportSource(); 
+        }
+        // Clicking a marker will often click a path.
+        // This will make it so the marker takes precedence.
+        setTimeout(
+            $426Map.path_select(null, dest, src),
+            50
+        );
+       
     });
 
 
