@@ -226,35 +226,35 @@ $426ItinerariesPanel = new function() {
             + `<div class="itinerary-name"><p>`
             + `${fillPacket["ticket"].get_nameFirst()} `
             + `${fillPacket["ticket"].get_nameMiddle()} `
-            + `${fillPacket["ticket"].get_nameLast()}</p></div><br>`
-            + `<div class="itinerary-flight"><p>Airline</p>`
+            + `${fillPacket["ticket"].get_nameLast()}</p></div>`
+            + `<div class="itinerary-flight"><div><p>Airline</p>`
             + `<p>${fillPacket["airline"].get_name()}</p>`
-            + `<p>Flight Number</p>`
-            + `<p>${fillPacket["flight"].get_number()}</p>`
+            + `</div><div><p>Flight Number</p>`
+            + `<p>${fillPacket["flight"].get_number()}</p></div>`
         );
         if (fillPacket["operator"] != null) {
             out = (
-                `${out}<p>Operated by</p>`
-                + `<p>${fillPacket["operator"].get_name()}</p>`
+                `${out}<div><p>Operated by</p>`
+                + `<p>${fillPacket["operator"].get_name()}</p></div>`
             );
         }
         out = (
-            `${out}<div class="itinerary-instance">`
-            + `<p>Departs</p>`
+            `${out}</div><div class="itinerary-instance">`
+            + `<div><p>Departs</p>`
             + `<p>${fillPacket["flight"].get_departure_time_string()}</p>`
-            + `<p>Arrives</p> `
+            + `</div><div><p>Arrives</p> `
             + `<p>${fillPacket["flight"].get_arrival_time_string()}</p>`
-            + `</div><div class="itinerary-airports"><p>`
+            + `</div></div><div class="itinerary-airports"><div><p>`
             + `${$426Airports.get_city(fillPacket["flight"].get_departure_id())}`
             + `</p><p>`
             + `${$426Airports.get_name(fillPacket["flight"].get_departure_id())}`
             + ` (${$426Airports.get_code(fillPacket["flight"].get_departure_id())})`
-            + `<p>`
+            + `</p></div><div><p>`
             + `${$426Airports.get_city(fillPacket["flight"].get_arrival_id())}`
             + `</p><p>`
             + `${$426Airports.get_name(fillPacket["flight"].get_arrival_id())}`
             + ` (${$426Airports.get_code(fillPacket["flight"].get_arrival_id())})`
-            + `</p></div></div>`
+            + `</p></div></div></div>`
         )
 
         $("div#itineraries-container").append(out);
@@ -283,8 +283,6 @@ $426ItinerariesPanel = new function() {
 }
 
 $(document).ready(() => {
-
-    $("div#itineraries").addClass("itineraries-showww");
 
     $("input#itineraries-search").on("input", function(e) {
         $426ItinerariesPanel.retrieve(
