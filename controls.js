@@ -28,7 +28,7 @@ $426Controls = new function() {
             }
 
             this._firstAJAXTimeout = setTimeout(
-                (e) => {
+                function(e)  {
                     $426Controls._firstAJAXTimeout = null;
                     $426Controls.autocomplete(e);
                 }, 500
@@ -71,7 +71,7 @@ $426Controls = new function() {
             && this.get_src() != null
             && !$426Map.get_reverse()
         ) {
-            dsts = $426Airports.get_dests(this.get_src()); 
+            dsts = $426Airports.get_dests(this.get_src());
         }
 
         for (const ident of $426Airports.autocomplete(text)) {
@@ -130,6 +130,9 @@ $426Controls = new function() {
 
             this.set_input_src(ident);
             this.set_src(ident);
+            if (this.get_dest() == null) {
+                $426Map.set_reverse(false);
+            }
             if (!$426Map.get_reverse()) {
                 reset = true;
             }
@@ -153,19 +156,24 @@ $426Controls = new function() {
             || reset
         ) {
 
-            $426Map.redraw(ident);
 
             // Yes you must set them to null here.
             // Don't change it unless you redo the entire
             // input replacement scheme.
             // This prevents stale input.
             if (source === "src") {
+                //if (this.get_dest() != null) {
                 this._dest = null;
+                //}
                 this.clear_input_dest();
             } else {
+                //if (this.get_src() != null) {
                 this._src = null;
+                //}
                 this.clear_input_src();
             }
+
+            $426Map.redraw(ident);
 
         } else {
 
@@ -187,7 +195,7 @@ $426Controls = new function() {
         }
         if (this.get_src() == null) {
             this.clear_input_src();
-        } 
+        }
         $("div#controls-autocomplete-container").html("&nbsp;");
 
     }
@@ -198,12 +206,16 @@ $426Controls = new function() {
             $426Map.select_path(null, null, null);
             $("input#controls-airport-dest").val("");
             if ($426Map.get_reverse()) {
-                $426Map.set_reverse(false);
+                // Order matters. Don't reverse them.
+                this.clear_input_src();
+                //$426Map.set_reverse(false);
             }
         }
         // Allows for resetting input box to old value on map
         // movement if appropriate.
-        this._dest = -this._dest;
+        if (this.get_dest() != null) {
+            this._dest = -this._dest;
+        }
     }
 
     // Clears the source input box.
@@ -212,9 +224,14 @@ $426Controls = new function() {
             $426Map.select_path(null, null, null);
             $("input#controls-airport-src").val("");
         }
+        if (!$426Map.get_reverse()) {
+            this.clear_input_dest();
+        }
         // Allows for resetting input box to old value on map
         // movement if appropriate.
-        this._src = -this.src;
+        if (this.get_src() != null) {
+            this._src = -this._src;
+        }
     }
 
     /*
@@ -231,14 +248,14 @@ $426Controls = new function() {
      *  An airport ID can never be negative, but to support some
      *  behavior this._dest can be. If that's the case, this getter
      *  pretends this._dest is null and returns null.
-     */ 
+     */
     this.get_dest = () => {
         if (this._dest != null && this._dest > 0) {
             return this._dest;
         } else {
             return null;
         }
-    } 
+    }
 
     /*
      *  Gets the airport ID of the active source airport.
@@ -270,13 +287,13 @@ $426Controls = new function() {
     // input last was. No manipulations are made to the map.
     this.reset_input = () => {
 
-        if (this.get_dest() != null) {
+        if (this._dest != null) {
             if (this._dest < 0) {
                 this._dest = -this._dest;
             }
             this.set_input_dest(this.get_dest());
         }
-        if (this.get_src() != null) {
+        if (this._src != null) {
             if (this._src < 0) {
                 this._src = -this._src;
             }
@@ -362,12 +379,12 @@ $426Controls = new function() {
     this.set_input_src = (ident) => {
 
         if (typeof(ident) !== "number") {
-            return false;
+            return -1;
         } else if (!$426Airports.is_airport_id(ident)) {
             return -2;
         }
 
-        this._src = ident;
+        this.set_src(ident);
         $("input#controls-airport-src").val(
            `${$426Airports.get_city(ident)} `
             + `(${$426Airports.get_code(ident)})`
