@@ -1,10 +1,14 @@
 // itineraries.JS //
 $426ItinerariesPanel = new function() {
 
+    this._current = false;
+
     this.fillPacket = function() {
         this.airline = null;
+        this.dest = null;
         this.flight = null; 
         this.operator = null;
+        this.source = null;
         this.ticket = null;
     }
 
@@ -25,34 +29,75 @@ $426ItinerariesPanel = new function() {
 
         } else if (r instanceof $426Ticket) {
 
+            // FIXME NONE of these error handling $.when
+            // subfunctions have been tested. I can't get them to
+            // fail easily.
             let pack = new $426ItinerariesPanel.fillPacket();
             pack["ticket"] = r;
-            $.when($426Instance.retrieve_by_id(pack["ticket"].get_idInstance())).then(
-                (insta) => {
+            $.when($426Instance.retrieve_by_id(
+                pack["ticket"].get_idInstance())
+            ).then(
+                (insta, text, jqXHR) => {
 
-                    insta = new $426Instance(insta);
-                    $.when($426Flight.retrieve_by_id(insta.get_flight_id())).then(
-                        (flight) => {
+                    if (jqXHR.status === 200) {
+                        insta = new $426Instance(insta);
+                        $.when($426Flight.retrieve_by_id(
+                            insta.get_flight_id())
+                        ).then(
+                            (flight, text, jqXHR) => {
 
-                            pack["flight"] = new $426Flight(flight);
-                            $426ItinerariesPanel.fill(pack);
+                                if (jqXHR.status === 200) {
 
-                        },
-                        (flight) => {
+                                    pack["flight"] = new $426Flight(flight);
+                                    $426ItinerariesPanel.fill(pack);
 
-                            console.log(
-                                "PANIC: $426Itinerary.fill() panicked on getting "
-                                + "the flight."
-                            );
-                            console.log(`Flight: ${flight}`);
+                                } else {
 
-                        });
+                                    $426_ajax_handle_error(
+                                        jqXHR, text, flight,
+                                        "$426ItinerariesPanel.fill "
+                                        + "success: AJAX call for "
+                                        + "$426Flight.retrieve_by_id "
+                                        + "failed."
+                                    );
+
+                                }
+
+                            },
+                            (jqXHR, text, err) => {
+
+                                $426_ajax_handle_error(
+                                    jqXHR, text, err,
+                                    "$426ItinerariesPanel.fill "
+                                    + "error: AJAX call for "
+                                    + "$426Flight.retrieve_by_id "
+                                    + "failed."
+                                );
+
+                            });
+
+                    } else {
+
+                        $426_ajax_handle_error(
+                            jqXHR, text, insta,
+                            "$426ItinerariesPanel.fill "
+                            + "success: AJAX call for "
+                            + "$426Instance.retrieve_by_id "
+                            + "failed."
+                        );
+
+                    }
 
                 },
-                (insta) => {
+                (jqXHR, text, err) => {
 
-                    console.log("PANIC: $426Itinerary.fill() panicked on getting the instance.");
-                    console.log(`Instance: ${insta}`);
+                    $426_ajax_handle_error(
+                        jqXHR, text, err,
+                        "$426ItinerariesPanel.fill "
+                        + "error: AJAX call for "
+                        + "$426Instances.retrieve_by_id "
+                        + "failed."
+                    )
 
                 }
             );
@@ -71,24 +116,42 @@ $426ItinerariesPanel = new function() {
                         ),
                         $426Airline.retrieve_by_id(
                             r["flight"].get_operator_id()
-                        )
+                        ),
                     ).then( 
                         (airline, operator) => {
 
-                            r["airline"] = new $426Airline(airline);
-                            r["operator"] = new $426Airline(operator);
-                            $426ItinerariesPanel.fill(r);
+                            if (airline[2].status === 200 && operator[2].status === 200) {
+
+                                r["airline"] = new $426Airline(airline[0]);
+                                r["operator"] = new $426Airline(operator[0]);
+                                $426ItinerariesPanel.fill(r);
+
+                            } else {
+
+                                $426_ajax_handle_error(
+                                    airline[2], airline[1], airline[0],
+                                    "$426ItinerariesPanel.fill() "
+                                    + "panicked on getting the airline "
+                                    + "and the operator." 
+                                );
+                                $426_ajax_handle_error(
+                                    operator[2], operator[1], operator[0],
+                                    "$426ItinerariesPanel.fill() "
+                                    + "panicked on getting the airline "
+                                    + "and the operator."
+                                );
+
+                            }
 
                         },
-                        (airline, operator) => {
+                        (jqXHR, text, err) => {
 
-                            console.log(
-                                "PANIC: $426ItinerariesPanel.fill() "
+                            $426_ajax_handle_error(
+                                jqXHR, text, err,
+                                "$426ItinerariesPanel.fill() "
                                 + "panicked on getting the airline "
-                                + "and the operator." 
+                                + "and the operator."
                             );
-                            console.log(`Airline: ${airline}`);
-                            console.log(`Operator: ${operator}`);
 
                         });
 
@@ -99,20 +162,34 @@ $426ItinerariesPanel = new function() {
                             r["flight"].get_airline_id()
                         ),
                     ).then( 
-                        (airline) => {
+                        (airline, text, jqXHR) => {
 
-                            r["airline"] = new $426Airline(airline);
-                            $426ItinerariesPanel.fill(r);
+                            if (jqXHR.status === 200) {
+                                r["airline"] = new $426Airline(airline);
+                                $426ItinerariesPanel.fill(r);
+
+                            } else {
+
+                                $426_ajax_handle_error(
+                                    jqXHR, text, airline,
+                                    + "$426ItinerariesPanel.fill() "
+                                    + "success: AJAX for "
+                                    + "$426Airline.retrieve_by_id "
+                                    + "failed."
+                                );
+
+                            }
 
                         },
-                        (airline) => {
+                        (jqXHR, text, err) => {
 
-                            console.log(
-                                "PANIC: $426ItinerariesPanel.fill()"
-                                + "panicked on getting the airline." 
+                            $426_ajax_handle_error(
+                                jqXHR, text, err,
+                                + "$426ItinerariesPanel.fill() "
+                                + "error: AJAX for "
+                                + "$426Airline.retrieve_by_id "
+                                + "failed."
                             );
-                            console.log(`Airline: ${airline}`);
-
 
                         }
                     );
@@ -123,14 +200,7 @@ $426ItinerariesPanel = new function() {
 
             }
 
-            let out = (
-                `<div class="itinerary">`
-                + `<div class="itinerary-name"><p>${r.get_nameFirst()}` 
-                + `${r.get_nameMiddle()} ${r.get_nameLast()}</p></div><br>`
-                + `<div class="itinerary-flight"><p>Airline</p><p>`
-            );
-
-            $("div#itineraries-container").append(out);
+            this._fill_text(r);
 
             return true;
 
@@ -142,13 +212,65 @@ $426ItinerariesPanel = new function() {
 
     }
 
+    this._fill_text = (fillPacket) => {
+
+        if (!this._current) {
+
+            this._current = true;
+            this.clear();
+
+        }
+
+        let out = (
+            `<div class="itinerary">`
+            + `<div class="itinerary-name"><p>`
+            + `${fillPacket["ticket"].get_nameFirst()} `
+            + `${fillPacket["ticket"].get_nameMiddle()} `
+            + `${fillPacket["ticket"].get_nameLast()}</p></div><br>`
+            + `<div class="itinerary-flight"><p>Airline</p>`
+            + `<p>${fillPacket["airline"].get_name()}</p>`
+            + `<p>Flight Number</p>`
+            + `<p>${fillPacket["flight"].get_number()}</p>`
+        );
+        if (fillPacket["operator"] != null) {
+            out = (
+                `${out}<p>Operated by</p>`
+                + `<p>${fillPacket["operator"].get_name()}</p>`
+            );
+        }
+        out = (
+            `${out}<div class="itinerary-instance">`
+            + `<p>Departs</p>`
+            + `<p>${fillPacket["flight"].get_departure_time_string()}</p>`
+            + `<p>Arrives</p> `
+            + `<p>${fillPacket["flight"].get_arrival_time_string()}</p>`
+            + `</div><div class="itinerary-airports"><p>`
+            + `${$426Airports.get_city(fillPacket["flight"].get_departure_id())}`
+            + `</p><p>`
+            + `${$426Airports.get_name(fillPacket["flight"].get_departure_id())}`
+            + ` (${$426Airports.get_code(fillPacket["flight"].get_departure_id())})`
+            + `<p>`
+            + `${$426Airports.get_city(fillPacket["flight"].get_arrival_id())}`
+            + `</p><p>`
+            + `${$426Airports.get_name(fillPacket["flight"].get_arrival_id())}`
+            + ` (${$426Airports.get_code(fillPacket["flight"].get_arrival_id())})`
+            + `</p></div></div>`
+        )
+
+        $("div#itineraries-container").append(out);
+
+
+    }
+
     this.retrieve = (txt) => {
 
         if (txt.search(/[A-Z0-9]{10}/) >= 0) {
-            return $426Itinerary.retrieve_by_code(txt, $426ItinerariesPanel.fill); 
+            this._current = false;
+            return $426Itinerary.retrieve_by_code(txt, $426ItinerariesPanel.fill);
         } else if (
             txt.search(/^[a-zA-Z0-9!#$%&'*+\-/=?^_`{|}~.]+@[a-zA-Z0-9.]+\.[a-zA-Z0-9]+$/) >= 0
         ) {
+            this._current = false;
             return $426Itinerary.retrieve_by_email(txt, $426ItinerariesPanel.fill);
         } else {
             return false;
@@ -156,7 +278,7 @@ $426ItinerariesPanel = new function() {
 
         return true;
 
-    } 
+    }
 
 }
 
@@ -187,5 +309,5 @@ $(document).ready(() => {
     $("div#itineraries").on("transitionend", function() {
         $("div#itineraries").removeClass("itineraries-show");
     });
- 
+
 });
