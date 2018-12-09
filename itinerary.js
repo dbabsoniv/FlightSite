@@ -1,12 +1,25 @@
+// ITINERARY.JS //
 $426ItineraryPanel = new function() {
 }
 
 $(document).ready(() => {
 
-    $("div#controls-itinerary-button").mouseenter(() => {
-        $("div#itinerary").addClass("itinerary-show");
+    let button_timeout = null;
+
+    $("div#controls-itinerary-button").mouseenter(function() {
+        button_timeout = setTimeout(function() {
+                $("div#itinerary").addClass("itinerary-show")
+            },
+            400
+        );
     });
-    $("div#itinerary").on("transitionend", () => {
+    $("div#controls-itinerary-button").mouseleave(function() {
+        if (button_timeout != null) {
+            clearTimeout(button_timeout);
+            button_timeout = null;  
+        }
+    });
+    $("div#itinerary").on("transitionend", function() {
         $("div#itinerary").removeClass("itinerary-show");
     });
  

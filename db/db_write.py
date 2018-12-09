@@ -62,8 +62,8 @@ RADIUS_EARTH = 6371 # Kilometers
 ROUTES = []
 SESSION = requests.Session()
 SUBS = {"9E": "DL"}
-USER = "BabsonPrice"
-PW = "DaveRobert2015gehirn"
+USER = ""
+PW = ""
 
 AIRLINES_BAD = (
     "2O", "3E", "3F", "3H", "4E", "4N", "4W", "4Y", "6L", "8D", "8P",
@@ -888,12 +888,3 @@ def update_routes():
         route.planeID = plane_codes[route.planeUsed].id
 
 if __name__ == "__main__":
-
-    login()
-    with open("airport_fuckup.csv", "w+", newline="") as f:
-        r = SESSION.get(API + "airports")
-        for airport in r.json():
-            if airport["info"] is None:
-                f.write(str(airport))
-                f.write("\n")
-            
