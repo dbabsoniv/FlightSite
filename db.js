@@ -1,3 +1,4 @@
+// DB.JS //
 //TODO REMEMBER TO CLEAN ALL USER INPUT.
 //TODO USER INPUT MUST HAVE A MAX LENGTH.
 //
@@ -1717,7 +1718,7 @@ $426_sanitize = function(s) {
 let db_login = function() {
 
     $.ajax(
-        `${$426_ROOT_URL}sessions` ,
+        `${$426_ROOT_URL}sessions`,
         {
 
             data: {
@@ -1729,7 +1730,7 @@ let db_login = function() {
             },
             success: (data, text, jqXHR) => {
                 if (jqXHR.status === 204) {
-                    $426Airports = new _db_426Airports();
+                    new _db_426Airports();
                 } else {
                     $426_ajax_handle_error(jqXHR, text, data);
                 }
@@ -1750,21 +1751,66 @@ let db_login = function() {
 // TODO Comment this!
 let _db_426Airports = function() {
 
+    this.ILLEGAL_AIRPORT_IDS = [
+        1479, 1496, 1528, 1534, 1549, 1567, 1594, 1669, 1520, 1556,
+        1580, 1613, 1643, 1664, 1527, 1530, 1542, 1551, 1605, 1608,
+        1620, 1644, 1693, 1717, 1768, 1751, 1766, 1814, 1823, 1752,
+        1827, 1872, 1897, 1899, 1902, 1912, 1918, 1921, 1948, 1959
+    ];
+
     this.airports = {};
     this.airportsByCode = {};
 
     this.get_city = (id) => { return this.airports[id]["city"]; }
     this.get_code = (id) => { return this.airports[id]["code"]; }
 
-    // This returns an array of strings, not integers, because of
-    // the way JavaScript handles keys.
-    this.get_dests = (id) => { return Object.keys(this.airports[id]["info"]); }
+    /*
+     *  Returns an array of STRINGS representing airport IDs.
+     *
+     *  ident can be null.
+     *
+     *  Parameters
+     *  ----------
+     *  ident   : (Number - Integer) Airport ID of source airport.
+     *            If this is provided, then the IDs of the
+     *            destinations from that airport will be returned.
+     *            Otherwise, the IDS of all airports will be
+     *            returned.
+     *
+     *  Returns
+     *  -------
+     *  ids : (Array - Strings) An array of strings representing
+     *        airport IDs.
+     */
+    this.get_dests = (ident) => {
+
+        if (typeof(ident) === "number") {
+
+            if ($426Airports.is_airport_id(ident)) {
+
+                return Object.keys(this.airports[ident]["info"]);
+
+            } else {
+
+                return false;
+
+            }
+
+        } else {
+
+            return Object.keys(this.airports);
+
+        }
+
+    }
 
     this.get_lat = (id) => { return +this.airports[id]["latitude"]; }
     this.get_long = (id) => { return +this.airports[id]["longitude"]; }
     this.get_name = (id) => { return this.airports[id]["name"]; }
 
     this.autocomplete = (txt) => {
+
+        const NUM_RETURNS = 9;
 
         let out = [];
         txt = txt.toLowerCase()
@@ -1776,7 +1822,7 @@ let _db_426Airports = function() {
                 out.push(t["id"])
             }
 
-        } 
+        }
 
         for (const [key, value] of Object.entries(this.airports)) {
 
@@ -1786,7 +1832,7 @@ let _db_426Airports = function() {
                 || value["city"].toLowerCase().startsWith(txt)
             ) {
                 out.push(key);
-                if (out.length === 10) {
+                if (out.length === NUM_RETURNS) {
                     return out;
                 }
             }
@@ -1797,15 +1843,50 @@ let _db_426Airports = function() {
 
     }
 
+    /*
+     *  Checks whether or not a provided airport ID is valid. 
+     *
+     *  Parameters
+     *  ----------
+     *  ident   : (Number - Integer) airport ID to check.
+     *
+     *  Returns
+     *  -------
+     *  false   : ident is not a valid airport ID.
+     *  true    : ident is a valid airport ID.
+     *
+     */ 
+    this.is_airport_id = (ident) => {
+
+        if (typeof(ident) !== "number") {
+
+            return false;
+
+        } else if (ident > 1982 || ident < 1465) {
+
+            return false;
+
+        } else if (this.ILLEGAL_AIRPORT_IDS.includes(ident)) {
+
+            return false;
+
+        } else {
+
+            return true;
+
+        }
+
+    }
+
     $.ajax(
         `${$426_ROOT_URL}airports`,
         {
 
             context : this,
             datatype : "json",
-            error: (jqXHR, text, data) => {
+            error: (jqXHR, text, err) => {
                 $426_ajax_handle_error(
-                    jqXHR, text, error, "_db_426Airport error"
+                    jqXHR, text, err, "_db_426Airport error"
                 );
             },
             success: (data, text, jqXHR) => {
@@ -1823,11 +1904,9 @@ let _db_426Airports = function() {
                     this.airportsByCode[item["code"]] = item;
                 }
 
-                _db_on_airport_load();
+                $426Airports = this;
 
-                // We don't set $426Airports to this object.
-                // Whatever calls us does that
-                // (probably db_login()).
+                _db_on_airport_load();
 
             },
             type: "GET",
