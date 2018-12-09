@@ -31,7 +31,7 @@ $426Controls = new function() {
                 function(e)  {
                     $426Controls._firstAJAXTimeout = null;
                     $426Controls.autocomplete(e);
-                }, 100
+                }, 50
             );
 
             return;
