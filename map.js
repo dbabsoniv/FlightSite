@@ -438,7 +438,18 @@ $426Map = new function() {
         }
 
         this.set_new(true);
+
+        // This function is special. It's allowed to do this. No one
+        // else should.
+        $426Controls.clear_input_dest();
+        $426Controls.clear_input_src();
+        $426Controls._src = null;
+        $426Controls._dest = null;
+
         this.clear();
+
+        // This is being purposefully kept around if we need these
+        // values later.
         //this.getMap().flyTo({
         //    center: [-99.9995795, 48.3552767],
         //    zoom: 4,
@@ -473,7 +484,6 @@ $426Map = new function() {
         }
 
         bounds = this._bounds_adj(bounds);
-
         this._map.fitBounds(bounds);
         this.draw_airports(airports);
 
@@ -625,6 +635,8 @@ $426Map = new function() {
             // TODO Send info to Tickets interface.
             console.log(idSrc);
             console.log(idDest);
+
+            $("div#flights").addClass("flights-show");
 
             return true;
 
@@ -782,7 +794,7 @@ let map_pointer = function(e) {
 
 // Only load the map if testing the map directly.
 // There is an API limit.
-
+/*
 $(document).ready(() => {
 
     $426Map._map = new mapboxgl.Map({
@@ -793,8 +805,10 @@ $(document).ready(() => {
 
     $("div#map").on(
         "mousedown", function() {
+            $426FlightsPanel.hide();
             $426Controls.clear_autocomplete();
             $426Controls.reset_input();
+            $426FlightsPanel.clear()
     });
 
     $("div#map").on(
@@ -806,4 +820,4 @@ $(document).ready(() => {
     $426Map.get_map().on("mouseleave", "paths", map_pointer);
 
 });
-
+*/
