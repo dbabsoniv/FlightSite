@@ -13,7 +13,7 @@ div#controls-container {
 div#controls-autocomplete-container {
     position: absolute;
 }
-div#controls-itinerary-button {
+div#controls-itineraries-button {
     border-top-left-radius: 25px;
     border-top-right-radius: 25px;
     border-style: solid;
@@ -30,7 +30,7 @@ div#controls-itinerary-button {
     user-select: none;
     -moz-user-select: -moz-none;
 }
-div#controls-itinerary-button p {
+div#controls-itineraries-button p {
     margin: inherit;
     padding: inherit;
 }
@@ -83,7 +83,7 @@ div#flights.flights-show {
     transition: all 1.0s ease;
     -webkit-animation: all 1.0s ease;
 }
-div#itinerary {
+div#itineraries {
     background: grey;
     border-color: black;
     border-style: solid;
@@ -100,7 +100,7 @@ div#itinerary {
     -webkit-animation: all 1.0s ease;
     z-index: 5;
 }
-div#itinerary:hover, div#itinerary.itinerary-show {
+div#itineraries:hover, div#itineraries.itineraries-show, div#itineraries.itineraries-showww {
     border-width: 0.2em;
     opacity: 1;
     width: 40%;

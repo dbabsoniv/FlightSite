@@ -97,7 +97,7 @@ $(document).ready(() => {
     
     //ask for confirmation, then create ticket
     
-    //add ticket to itinerary
+    //add ticket to itineraries
     
  
 });

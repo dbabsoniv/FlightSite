@@ -42,7 +42,7 @@
                 >
             </div>
         </div>        
-        <div id="controls-itinerary-button">
+        <div id="controls-itineraries-button">
             <p>⇊ Itineraries ⇊</p>
         </div>
         <div id="controls-autocomplete-container"></div>
@@ -51,8 +51,16 @@
         <div id="flights-button-temp">Ticket Window</div>
     </div>
     <!--FIXME Nonbreaking space is for testing only. Should be removed.-->
-    <div id="itinerary">
-        &nbsp;
+    <div id="itineraries">
+        <div id="itineraries-search-container">
+            <input
+                type="text" id="itineraries-search"
+                placeholder="Search by Confirmation Code or Email Address"
+                spellcheck="false"
+            >
+        </div>
+        <div id="itineraries-container">
+        </div>
     </div>
     <div id="map">
     </div>
