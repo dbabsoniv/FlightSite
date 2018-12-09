@@ -283,6 +283,10 @@ $426Controls = new function() {
 
     }
 
+    this.hide = () => {
+        $("div#controls").addClass("hidden");
+    }
+
     // Resets input in both destination and source input boxes to
     // what this._dest and this._airport indicate the
     // input last was. No manipulations are made to the map.
@@ -417,6 +421,10 @@ $426Controls = new function() {
         } else {
             return false;
         }
+    }
+
+    this.show = () => {
+        $("div#controls").removeClass("hidden");
     }
 
 }
