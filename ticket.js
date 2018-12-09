@@ -88,9 +88,9 @@ $(document).ready(() => {
             else
                 newSeat = "<div class='taken-seat'></div>";
             
-            $("#flights").append(newSeat);
+            $("#ticket").append(newSeat);
         }
-        $("#flights").append("<div class='seat-seperator'></div>");
+        $("#ticket").append("<div class='seat-seperator'></div>");
         
     }
     
