@@ -72,6 +72,7 @@ div#flights {
     left: 8px;
     opacity: 0;
     overflow: auto;
+    padding: 1em;
     position: absolute;
     width: 0px;
     z-index: 5;
@@ -89,7 +90,9 @@ div#itinerary {
     border-width: 0px;
     border-radius: 25px;
     height: 83%;
+    opacity: 0;
     overflow: auto;
+    padding: 1em;
     position: absolute;
     width: 0px;
     right: 8px;
@@ -99,6 +102,7 @@ div#itinerary {
 }
 div#itinerary:hover, div#itinerary.itinerary-show {
     border-width: 0.2em;
+    opacity: 1;
     width: 40%;
     transition: all 1.5s ease;
     -webkit-animation: all 1.5s ease;
@@ -147,6 +151,7 @@ div#ticket {
     left: 5%;
     opacity: 0;
     overflow: auto;
+    padding: 1em;
     position: absolute;
     top: 5%;
     width: 90%;
