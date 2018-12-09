@@ -117,7 +117,7 @@ $426Flight = function(oData) {
     }
 
     /*
-     *  Gets the arrival time of this flight.
+     *  Gets the depature time of this flight.
      *
      *  Returns
      *  -------
@@ -1642,10 +1642,12 @@ $426Ticket.retrieve_by_itinerary_id = function(id, func) {
 
                 } else if (data.length < 1) {
 
-                    $426_ajax_handle_error(
-                        jqXHR, text, data,
-                        "$426Ticket.retrieve_by_itinerary_id success"
-                    );
+                    // This "error" occurs during healthy use.
+                    // It's nice for development though.
+                    //$426_ajax_handle_error(
+                    //    jqXHR, text, data,
+                    //    "$426Ticket.retrieve_by_itinerary_id success"
+                    //);
                     func(false);
                     return;
 
