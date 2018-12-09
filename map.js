@@ -3,7 +3,6 @@ $426Map = new function() {
 
     // There are no plans of making getters and setters for markers
     // and popups. They should never be publicly referenced.
-
     this.LINE_COLOR = "#17A589";
     this.LINE_WIDTH = 5;
 
@@ -292,14 +291,14 @@ $426Map = new function() {
             });
 
         }
-
-        // The bound is too tight. Make it more loose.
+        bounds = this._bounds_adj(bounds);
+        /*
         bounds[0][0] = (bounds[0][0] < -179) ? bounds[0][0] : bounds[0][0] - 1;
-        bounds[0][1] = (bounds[0][1] < -89) ? bounds[0][1] : bounds[0][1] - 1;
+        bounds[0][1] = (bounds[0][1] < -89) ? bounds[0][1] : bounds[0][1] - 2;
         bounds[1][0] = (bounds[1][0] > 179) ? bounds[1][0] : bounds[1][0] + 1;
         // This one is higher to avoid the controls UI.
         bounds[1][1] = (bounds[1][1] > 85) ? bounds[1][1] : bounds[1][1] + 5;
-
+        */
         if (this._map.getSource("paths")) {
             this._map.removeSource("paths");
         }
@@ -431,40 +430,94 @@ $426Map = new function() {
     // are random.
     this.reset = () => {
 
+        // This doesn't need to be complicate. There will never be a
+        // race condition here.
+        if ($426Airports == null) {
+            setTimeout($426Map.reset, 50)
+            return false;
+        }
+
         this.set_new(true);
         this.clear();
-        this.getMap().flyTo({
-            center: [-99.9995795, 48.3552767],
-            zoom: 4,
-        });
-        // TODO Get and draw random airports.
+        //this.getMap().flyTo({
+        //    center: [-99.9995795, 48.3552767],
+        //    zoom: 4,
+        //});
+
+        let all = $426Airports.get_dests(null);
+        let airports = [];
+        let bounds = [
+            [180, 90], [-180, -90]
+        ];
+        for (let i = 0; i < 10; ++i) {
+
+            let ident = all[Math.floor(Math.random() * all.length)];
+            let lat = $426Airports.get_lat(ident);
+            let lng = $426Airports.get_long(ident);
+
+            if (lng < bounds[0][0]) {
+                bounds[0][0] = lng;
+            }
+            if (lng > bounds[1][0]) {
+                bounds[1][0] = lng;
+            }
+            if (lat < bounds[0][1]) {
+                bounds[0][1] = lat;
+            }
+            if (lat > bounds[1][1]) {
+                bounds[1][1] = lat;
+            }
+
+            airports.push(ident);
+
+        }
+
+        bounds = this._bounds_adj(bounds);
+
+        this._map.fitBounds(bounds);
+        this.draw_airports(airports);
+
+        return true;
+
     }
 
     // Selects an airport marker and updates paths accordingly.
     // You probably don't want to call this.
     this.select_airport = (e) => {
 
-        let dest = undefined;
-        let src = undefined;
-        if ($426Map.get_reverse()) {
-            dest = $426Map.get_airportSource();
-            src = +$(e.target).attr("data-ident");
+        if (this.get_new()) {
+
+            let ident = +$(e.target).attr("data-ident");
+            this.set_new(false);
+            this.clear();
+            $426Controls.set_input_src(ident); 
+            this.redraw(ident);
+
         } else {
-            dest = +$(e.target).attr("data-ident");
-            src = $426Map.get_airportSource(); 
-        }
 
-        if (dest === src) {
-            return;
-        }
+            let dest = undefined;
+            let src = undefined;
+            if ($426Map.get_reverse()) {
+                dest = $426Map.get_airportSource();
+                src = +$(e.target).attr("data-ident");
+            } else {
+                dest = +$(e.target).attr("data-ident");
+                src = $426Map.get_airportSource(); 
+            }
 
-        // Clicking a marker will often click a path.
-        // This will make it so the marker takes precedence.
-        // REPIII is unsure if this matters.
-        setTimeout(() => {
-                $426Map.select_path(null, dest, src);
-            }, 10
-        );
+            if (dest === src) {
+                return;
+            }
+
+            // Clicking a marker will often click a path.
+            // This will make it so the marker takes precedence.
+            // REPIII is unsure if this matters.
+            setTimeout(() => {
+                    $426Map.select_path(null, dest, src);
+                }, 10
+            );
+
+        }
  
     }
 
@@ -690,6 +743,32 @@ $426Map = new function() {
 
     }
 
+    // The map Long/Lat bound is too tight. Make it more loose.
+    this._bounds_adj = (bounds) => {
+
+        const BOUNDS_ADJ_LAT_NEG = 2;
+        // Needs to be greater to avoid conflicts with UI.
+        const BOUNDS_ADJ_LAT_POS = 5;
+        const BOUNDS_ADJ_LONG_NEG = 2;
+        const BOUNDS_ADJ_LONG_POS = 2;
+
+        if (bounds[0][0] >= -180 + BOUNDS_ADJ_LONG_NEG) {
+            bounds[0][0] -= BOUNDS_ADJ_LONG_NEG;
+        }
+        if (bounds[0][1] >= -90 + BOUNDS_ADJ_LAT_NEG) {
+            bounds[0][1] -= BOUNDS_ADJ_LAT_NEG;
+        }
+        if (bounds[1][0] <= 180 - BOUNDS_ADJ_LONG_POS) {
+            bounds[1][0] += BOUNDS_ADJ_LONG_POS;
+        }
+        if (bounds[1][1] <= 90 - BOUNDS_ADJ_LAT_POS) {
+            bounds[1][1] += BOUNDS_ADJ_LAT_POS
+        } 
+
+        return bounds;
+
+    }
+
 }
 
 // Local helper function for pointing at lines on the map.
@@ -706,9 +785,8 @@ $(document).ready(() => {
     $426Map._map = new mapboxgl.Map({
         container: "map",
         style: "mapbox://styles/mapbox/light-v9",
-        center: [-99.9995795, 48.3552767],
-        zoom: 3,
     });
+    $426Map.reset();
 
     $("div#map").on(
         "mousedown", function() {

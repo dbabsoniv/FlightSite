@@ -31,7 +31,7 @@ $426Controls = new function() {
                 function(e)  {
                     $426Controls._firstAJAXTimeout = null;
                     $426Controls.autocomplete(e);
-                }, 500
+                }, 100
             );
 
             return;
@@ -156,6 +156,7 @@ $426Controls = new function() {
             || reset
         ) {
 
+            $426Map.set_new(false);
 
             // Yes you must set them to null here.
             // Don't change it unless you redo the entire
