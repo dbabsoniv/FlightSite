@@ -1251,7 +1251,7 @@ $426Ticket = function(oData) {
      *  Returns
      *  -------
      *  false   : Price was not given on creation.
-     *  price   : (Number - Integer) Price paid for ticket.  
+     *  price   : (Number - Float) Price paid for ticket.
      */ 
     this.get_price = () => {
         let price = oData["price_pad"];
@@ -1545,11 +1545,30 @@ $426Ticket.create = function(
         }, this)
     );
 
+
 }
-$426Ticket.make_price = function(id) {
-    // TODO Write me.
-    // ID is flight ID
-    return false;
+
+/*
+ *  Create a random ticket price based off of a flight.
+ *
+ *  Parameters
+ *  ----------
+ *  flight  : ($426Flight Object) Flight to get price of.
+ *
+ *  Returns
+ *  -------
+ *  price   : (Number - Float) Price of this flight.
+ */
+$426Ticket.make_price = function(flight) {
+
+    let r = Math.random();
+    // 1000 / 200 * 0.621371 * 100 = 12.42742
+    if (r > 0.5) {
+        return flight.get_distance_km() * r * 12.42742;
+    } else {
+        return flight.get_distance_km() * r * 24.85484;
+    }
+
 }
 // See _db_retrieve_by_id
 $426Ticket.retrieve_by_id = function(id) {
