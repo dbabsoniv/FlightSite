@@ -117,7 +117,7 @@ $426Flight = function(oData) {
     }
 
     /*
-     *  Gets the arrival time of this flight.
+     *  Gets the depature time of this flight.
      *
      *  Returns
      *  -------
