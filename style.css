@@ -127,6 +127,9 @@ div.autocomplete:hover {
     -moz-user-select: -moz-none;
     width: 16px;
 }
+.popup-airport p {
+    text-align: center
+}
 .pointer {
     cursor: pointer !important;
 }

@@ -85,7 +85,7 @@ $426Map = new function() {
             color = "#FF0000";
         }
         for (let ident of airports) {
-           this._draw_airports(ident, color);
+           this._draw_airports(+ident, color);
         }
 
         return true;
@@ -155,12 +155,17 @@ $426Map = new function() {
             let marker = new mapboxgl.Marker({
                 element: el
             });
+
             let popup = new mapboxgl.Popup({
                 closeButton: false,
                 className: "popup-airport",
             });
-            // TODO Write better airport text.
-            popup.setText($426Airports.get_city(+ident));
+            popup.setHTML(
+                `<p>${$426Airports.get_city(ident)} `
+                + `(${$426Airports.get_code(ident)})</p>`
+                + `<p>${$426Airports.get_name(ident)}</p>`
+            );
+
             marker.setLngLat([
                 $426Airports.get_long(+ident),
                 $426Airports.get_lat(+ident)
