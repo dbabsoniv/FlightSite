@@ -509,12 +509,15 @@ $426Map = new function() {
                 return;
             }
 
+            $426Controls.set_input_dest(dest);
+            $426Controls.set_input_src(src);
+
             // Clicking a marker will often click a path.
             // This will make it so the marker takes precedence.
             // REPIII is unsure if this matters.
             setTimeout(() => {
                     $426Map.select_path(null, dest, src);
-                }, 10
+                }, 2
             );
 
         }
