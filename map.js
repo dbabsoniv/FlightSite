@@ -509,8 +509,6 @@ $426Map = new function() {
             return -1;
         }
 
-        $426Controls.clear_autocomplete();
-
         let color = "#FF0000";
         let width = 7;
 
@@ -518,6 +516,11 @@ $426Map = new function() {
 
             idDest = e.features[0].properties.idDest;
             idSrc = e.features[0].properties.idSrc;
+
+            // This is suppose to only be here, when the event is
+            // not null.
+            $426Controls.clear_autocomplete();
+
             ret = true;
 
         } else if (
@@ -551,8 +554,12 @@ $426Map = new function() {
 
         } else {
 
-            $426Controls.set_input_dest(idDest);
-            $426Controls.set_input_src(idSrc);
+            if (e != null) {
+
+                $426Controls.set_input_dest(idDest);
+                $426Controls.set_input_src(idSrc);
+
+            }
 
             // TODO Send info to Tickets interface.
             console.log(idSrc);
@@ -698,13 +705,8 @@ $(document).ready(() => {
         zoom: 3,
     });
 
-    $426Map.get_map().on(
-        "click", function() {
-            $426Controls.clear_autocomplete();
-            $426Controls.reset_input();
-    });
-    $426Map.get_map().on(
-        "drag", function() {
+    $("div#map").on(
+        "mousedown", function() {
             $426Controls.clear_autocomplete();
             $426Controls.reset_input();
     });
