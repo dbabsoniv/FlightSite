@@ -1,8 +1,25 @@
-$426TicketPanel = new function() {
+// TICKET.JS //
+$426TicketPanel= new function() {
+
+    this.clear = () => {}
+    this.hide = () => {
+        $("div#ticket").removeClass("ticket-show");
+    }
+    this.show = () => {
+        $("div#ticket").addClass("ticket-show");
+    }
+
 }
 
 $(document).ready(() => {
-    
+
+    $("div#ticket-button-temp").click(function(e) {
+        $426Map.reset();
+        $426TicketPanel.hide();
+        $426Controls.show();
+        $426TicketPanel.clear()
+    });
+
     //recieve airport codes for start (1) and destination (2)
     portCode1 = "ATL";
     portCode2 = "MSN";
@@ -11,11 +28,11 @@ $(document).ready(() => {
     
     //list these flights (limit to an amount, 5 maybe?)
     //include details:
-    //  - LEAVE ROOM FOR AIRLINE LOGO - for endevor 
+    //  - LEAVE ROOM FOR AIRLINE LOGO
     //  - departure time
     //  - airline name
     //  - ticket price
-    //  - 
+    //  - Aircraft operator (in the case of Endeavor)
     
     //  enter name, age, gender, email address, ...
 
@@ -71,9 +88,9 @@ $(document).ready(() => {
             else
                 newSeat = "<div class='taken-seat'></div>";
             
-            $("#ticket-window").append(newSeat);
+            $("#flights").append(newSeat);
         }
-        $("#ticket-window").append("<div class='seat-seperator'></div>");
+        $("#flights").append("<div class='seat-seperator'></div>");
         
     }
     
@@ -82,7 +99,6 @@ $(document).ready(() => {
     
     //add ticket to itinerary
     
-
  
 });
 
@@ -114,20 +130,3 @@ function isFreeSeat(row, seat, takenArray) {
             return false;
     return true;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

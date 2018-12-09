@@ -62,6 +62,26 @@ div#controls p.arrow{
     margin: 0;
     font-size: 4em !important;
 }
+div#flights {
+    background: grey;
+    border-color: black;
+    border-style: solid;
+    border-width: 0.2em;
+    border-radius: 25px;
+    height: 83%;
+    left: 8px;
+    opacity: 0;
+    overflow: auto;
+    position: absolute;
+    width: 0px;
+    z-index: 5;
+}
+div#flights.flights-show {
+    opacity: 1;
+    width: 40%;
+    transition: all 1.0s ease;
+    -webkit-animation: all 1.0s ease;
+}
 div#itinerary {
     background: grey;
     border-color: black;
@@ -69,13 +89,12 @@ div#itinerary {
     border-width: 0px;
     border-radius: 25px;
     height: 83%;
+    overflow: auto;
     position: absolute;
     width: 0px;
     right: 8px;
     transition: all 1.0s ease;
     -webkit-animation: all 1.0s ease;
-    /*user-select: none;
-    -moz-user-select: -moz-none;*/
     z-index: 5;
 }
 div#itinerary:hover, div#itinerary.itinerary-show {
@@ -91,18 +110,9 @@ div#map {
     width: 100%;
     z-index: -99;
 }
-
 /**//**//**//**//**//**//**//**//**//**/
-div#ticket-window {
-    width: 40%;
-    background: grey;
-    border-top-right-radius: 25px;
-    border-bottom-right-radius: 25px;
-    height: 500px;
-    overflow: hidden;
-}
 
-div.seat, div.taken-seat, div.aisle-block, div.seat-seperator{
+div.seat, div.taken-seat, div.aisle-block, div.seat-seperator {
     width: 25px;
     height: 25px;
     background-color: blue;
@@ -128,22 +138,25 @@ div.seat-seperator {
 /**//**//**//**//**//**//**//**//**//**/
 
 div#ticket {
-    background: blue;
-    border-top-right-radius: 25px;
-    border-bottom-right-radius: 25px;
-    height: 83%;
+    background: grey;
+    border-color: black;
+    border-style: solid;
+    border-width: 0.2em;
+    border-radius: 25px;
+    height: 90%;
+    left: 5%;
+    opacity: 0;
+    overflow: auto;
     position: absolute;
-    width: 0px;
-    right: 8px;
-    transition: all 1.5s ease;
-    -webkit-animation: all 1.5s ease;
+    top: 5%;
+    width: 90%;
+    transition: all 0.5s ease;
+    -webkit-animation: all 0.5s ease;
     visibility: hidden;
-    z-index: 5;
+    z-index: 15;
 }
 div#ticket.ticket-show {
-    width: 40%;
-    transition: all 2.0s ease;
-    -webkit-animation: all 2.0s ease;
+    opacity: 1;
     visibility: visible;
 }
 div.autocomplete:hover {
