@@ -168,7 +168,10 @@ $(document).ready(() => {
 
     $("div#flights").on("click", "div.flight-button", function(e) {
 
-        let button = $(e.target).parent();
+        let button = $(e.target)
+        if (button.attr("data-dest") == undefined) {
+            button = button.parent();
+        }
         $426TicketPanel.show_ticket(
             button.attr("data-dest"),
             button.attr("data-src"),
@@ -179,7 +182,6 @@ $(document).ready(() => {
         );
 
     });
-
 
     // TODO Remove Me.
     //setTimeout(function() {
