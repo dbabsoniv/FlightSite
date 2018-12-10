@@ -1,3 +1,3 @@
 #!/bin/bash
-rm script.js
-cat *.js > script.js
+cat controls.js db.js flights.js itineraries.js map.js \
+parameters.js ticket.js zLast.js > script.js
