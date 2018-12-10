@@ -20,6 +20,7 @@ $426TicketPanel= new function() {
         $("div#ticket-content").html("");
         // Removes all classes.
         $("div#ticket-content").removeClass();
+        $("div#ticket-button-next").removeClass("hidden");
 
         this._code = null;
         this._flight = null;
@@ -40,9 +41,14 @@ $426TicketPanel= new function() {
 
     this.confirmation = () => {
 
-        this._status = 3;
-        $("div#ticket-content").html(
-            `<h1>Confirmation Code:</h1><br><h1>${this._code}</h1>`
+        this._step = 3;
+        let div = $("div#ticket-content");
+
+        div.removeClass();
+        div.addClass("ticket-confirmation");
+        $("div#ticket-button-next").addClass("hidden");
+        div.html(
+            `<h1>Success! Your Confirmation Code:</h1><h1>${this._code}</h1>`
         );
 
     }
@@ -72,6 +78,7 @@ $426TicketPanel= new function() {
         let nameLast = $426_sanitize($("input#ticket-last").val());
         let sal = $426_sanitize($("input#ticket-sal").val());
         let suffix = $426_sanitize($("input#ticket-suffix").val());
+
         if (
             email === ""
             || email.search(/^[a-zA-Z0-9!#$%&'*+\-/=?^_`{|}~.]+@[a-zA-Z0-9.]+\.[a-zA-Z0-9]+$/) < 0
@@ -81,13 +88,15 @@ $426TicketPanel= new function() {
                     $("input#ticket-email").removeClass("illegal");
                 }, 1500
             );
+            return -1;
         }
-        if (nameFirst === "") {
+        if (gender === "") {
             $("input#ticket-gender").addClass("illegal")
             setTimeout(function() {
                     $("input#ticket-gender").removeClass("illegal");
-                }, 2000
+                }, 1500
             );
+            return -2;
         }
         if (nameFirst === "") {
             $("input#ticket-first").addClass("illegal")
@@ -95,6 +104,7 @@ $426TicketPanel= new function() {
                     $("input#ticket-first").removeClass("illegal");
                 }, 2000
             );
+            return -3;
         }
         if (nameLast === "") {
             $("input#ticket-last").addClass("illegal")
@@ -102,11 +112,9 @@ $426TicketPanel= new function() {
                     $("input#ticket-last").removeClass("illegal");
                 }, 2000
             );
+            return -4;
         }
 
-        console.log(`Flight: ${this._flight}`);
-        // FIXME Thanks to date, this can fail in normal operation.
-        // That must be caught and handled appropriate.
         let r = $426Instance.create(
             // FIXME Currently not supporting seats.
             date, this._flight, "", (insta) => {
@@ -131,13 +139,27 @@ $426TicketPanel= new function() {
 
         });
         if (typeof(r) === "number") {
-            console.log(
-                "PANIC: $426TicketPanel.input_information() "
-                + "could not create instance via "
-                + "$426Instance.create. Bad parameters. "
-                + `Error Code: ${r}`
-            );
-            return r;
+
+            if (r === -6) {
+
+                $("input#ticket-date").addClass("illegal")
+                setTimeout(function() {
+                        $("input#ticket-date").removeClass("illegal");
+                    }, 2000
+                );
+                return -5;
+    
+            } else { 
+
+                console.log(
+                    "PANIC: $426TicketPanel.input_information() "
+                    + "could not create instance via "
+                    + "$426Instance.create. Bad parameters. "
+                    + `Error Code: ${r}`
+                );
+                return r;
+
+            }
         }
 
         let itinerary_create = (email) => {
@@ -247,13 +269,17 @@ $426TicketPanel= new function() {
 
         out = (
             `<div>`
-            + `<input id="ticket-sal" type="text" maxlength="11"`
+            + `<input id="ticket-sal" type="text" maxlength="11" `
+            + `autocomplete="off" `
             + `placeholder="Salutations"><input id="ticket-first"`
+            + `autocomplete="off" `
             + `type="text" maxlength="512" placeholder="First Name">`
             + `</div><div><input id="ticket-middle" maxlength="512" `
+            + `autocomplete="off" `
             + `placeholder="Middle Name" type="text"></div><div>`
             + `<input id="ticket-last" maxlength="512" placeholder=`
-            + `"Last Name" type="text"><input id="ticket-suffix" `
+            + `"Last Name" type="text" autocomplete="off">`
+            + `<input id="ticket-suffix" autocomplete="off"`
             + `maxlength="10" placeholder="Suffix" type="text"></div>`
             + `<div><p>Depature&nbsp;Date</p><input id="ticket-date" `
             + `type="date" value="${now.getFullYear()}-`
@@ -263,14 +289,15 @@ $426TicketPanel= new function() {
             + `${now.getMonth()+1}-${now.getDate()}">`
             + `<p>Age</p><select id="ticket-age">`
         );
-        for (let i = 0; i < 131; ++i) {
+        for (let i = 1; i < 131; ++i) {
             out = `${out}<option value="${i}">${i}</option>`;
         }
         out = (
             `${out}</select><input id="ticket-gender" maxlength="256" `
+            + `autocomplete="off" `
             + `placeholder="Gender" type="text"></div>`
             + `<div><input id="ticket-email" maxlength="512" placeholder=`
-            + `"Email Address" type="text"></div>`
+            + `"Email Address" autocomplete="off" type="text"></div>`
         );
         div.html(out);
         this._step = 1;
@@ -326,7 +353,7 @@ $(document).ready(() => {
 
     });
 
-
+    return;
     $426TicketPanel.show_ticket(
         "ATL",
         "CLT",

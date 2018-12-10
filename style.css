@@ -256,6 +256,7 @@ div.flight img {
     display: inline-block;
     height: 40px;
     margin-right: 0.5em;
+    object-fit: scale-down;
     width: 40px;
     vertical-align: middle;
 }
@@ -272,6 +273,8 @@ div.flight-button {
     height: 32%;
     justify-content: center;
     width: 95%;
+    user-select: none;
+    -moz-user-select: -moz-none;
 }
 div.flight-purchase > p {
     font-size: 1.5em;
@@ -312,12 +315,19 @@ div.itinerary-flight > div p:nth-child(2), div.itinerary-instance > div p:nth-ch
     font-size: 1.25em;
     margin-top: 0.5em;
 }
+div.ticket-confirmation {
+    color: white;
+    font-size: 2em;
+    text-align: center;
+}
 div.ticket-information {
     align-content: stretch;
     color: black;
     display: flex;
     font-size: 2.25em;
     flex-direction: column;
+    user-select: none;
+    -moz-user-select: -moz-none;
 }
 div.ticket-information input {
     margin: 1em 0.5em;
@@ -346,6 +356,7 @@ div.ticket-information > div {
     background: red;
     color: black;
 }
+/* This is the marker, not the popup. */
 .marker-airport {
     /*background-color: blue;*/
     border-radius: 16px;

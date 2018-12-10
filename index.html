@@ -27,6 +27,7 @@
             <div id="controls-src-container">
                 <input
                     type="text" id="controls-airport-src"
+                    autocomplete="off"
                     placeholder="Origin: City or Airport"
                     maxlength="256" size="25" spellcheck="false"
                 >
@@ -37,6 +38,7 @@
             <div id="controls-dest-container">
                 <input
                     type="text" id="controls-airport-dest"
+                    autocomplete="off"
                     placeholder="Destination: City or Airport"
                     maxlength="256" size="25" spellcheck="false"
                 >
@@ -53,9 +55,9 @@
     <div id="itineraries">
         <div id="itineraries-search-container">
             <input
-                type="text" id="itineraries-search"
+                id="itineraries-search"
                 placeholder="Search by Confirmation Code or Email Address"
-                maxlength="256" spellcheck="false"
+                maxlength="256" spellcheck="false" type="text"
             >
         </div>
         <div id="itineraries-container">
@@ -63,7 +65,7 @@
     </div>
     <div id="map">
     </div>
-    <div id="ticket" class="ticket-show">
+    <div id="ticket">
         <div id="ticket-where">
         </div>
         <div id="ticket-content">
