@@ -66,22 +66,26 @@ div#flights {
     background: grey;
     border-color: black;
     border-style: solid;
-    border-width: 0.2em;
+    border-width: 0px;
     border-radius: 25px;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
     height: 83%;
     left: 8px;
     opacity: 0;
-    overflow: auto;
+    overflow-y: auto;
     padding: 1em;
     position: absolute;
+    width: 0px;
     transition: all 500ms ease;
     -webkit-animation: all 500ms ease;
-    width: 0px;
     z-index: 5;
 }
 div#flights.flights-show {
+    border-width: 0.2em;
     opacity: 1;
-    width: 50%;
+    width: 45%;
     transition: all 1000ms ease;
     -webkit-animation: all 1000ms ease;
 }
@@ -108,7 +112,7 @@ div#itineraries {
 div#itineraries:hover, div#itineraries.itineraries-show {
     border-width: 0.2em;
     opacity: 1;
-    width: 50%;
+    width: 45%;
     transition: all 1000ms ease;
     -webkit-animation: all 1000ms ease;
 }
@@ -181,11 +185,11 @@ div#ticket.ticket-show {
     opacity: 1;
     visibility: visible;
 }
-div.autocomplete:hover {
+div.autocomplete:hover, div.flight-button:hover{
     background: #0095FF !important;
     color: black !important;
 }
-div.itinerary {
+div.itinerary, div.flight {
     align-items: stretch;
     background: #F1F1F1;
     border-color: black;
@@ -194,6 +198,7 @@ div.itinerary {
     border-style: solid;
     color: black;
     display: flex;
+    font-size: 1.1em;
     font-weight: bold;
     justify-content: space-evenly;
     margin: 1em;
@@ -201,7 +206,32 @@ div.itinerary {
     padding: 1em;
     text-align: center;
 }
-div.itinerary > div {
+div.flight img {
+    display: inline-block;
+    height: 30px;
+    margin-right: 0.5em;
+    width: 30px;
+    vertical-align: middle;
+}
+div.flight-button {
+    align-items: center;
+    display: flex;
+    background: grey;
+    border-color: black;
+    border-radius: 25px;
+    border-style: solid;
+    border-width: 0.15em;
+    color: white;
+    font-size: 1.25em;
+    height: 32%;
+    justify-content: center;
+    width: 95%;
+}
+div.flight-purchase > p {
+    font-size: 1.5em;
+    margin-bottom: 1.5em;
+}
+div.flight > div, div.itinerary > div {
     align-items: center;
     border-color: black;
     border-style: solid;
@@ -235,6 +265,12 @@ div.itinerary-flight > div p:first-child, div.itinerary-instance > div p:first-c
 div.itinerary-flight > div p:nth-child(2), div.itinerary-instance > div p:nth-child(2) {
     font-size: 1.25em;
     margin-top: 0.5em;
+}
+.flight-operator {
+    font-size: 0.8em;
+    font-style: italic;
+    font-weight: normal;
+    margin: 0.1em auto;
 }
 .itinerary-name p {
     font-size: 1.4em;

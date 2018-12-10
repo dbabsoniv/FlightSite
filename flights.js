@@ -1,7 +1,9 @@
 // FLIGHTS.JS //
 $426FlightsPanel = new function() {
 
-    this.clear = () => {}
+    this.clear = () => {
+        $("div#flights").html("");
+    }
 
     this.fill_objs = (flight) => {
 
@@ -79,8 +81,45 @@ $426FlightsPanel = new function() {
 
     this.fill_text = (airline, flight, plane) => {
 
-        
+        let price = parseFloat($426Ticket.make_price(flight)).toFixed(2);
 
+        let out = (
+            `<div class="flight">`
+            + `<div class="flight-airline">`
+            + `<p><img src="logos/${airline.get_logoURL()}">`
+            + `${airline.get_name()}</p><p>`
+            + `${flight.get_number()}</p>`
+        );
+        if (flight.get_operator_id() != null) {
+            out = (
+                `${out}<p class="flight-operator">`
+                + `Operated by Endeavor Airlines</p>`
+            );
+        }
+        out = (
+            `${out}</div><div class="flight-details"><p>`
+            + `${flight.get_departure_time_string()} - `
+            + `${flight.get_arrival_time_string()}</p><p>` 
+            + `${$426Airports.get_code(flight.get_departure_id())}`
+            + ` ⇒ `
+            + `${$426Airports.get_code(flight.get_arrival_id())}`
+            + `</p><p>Distance: `
+            + `${flight.get_distance_m().toLocaleString()} Miles`
+            + `</p>`
+            + `<p>${plane.get_name()}</p>`
+            + `</div><div class="flight-purchase"><p>\$`
+            + `${price}</p><div class="flight-button" `
+            + `data-flight="${flight.get_id()}" `
+            + `data-plane="${plane.get_id()}" `
+            + `data-price="${price}"</div>`
+            + `<p>Select</p></div>`
+            + `</div></div>`
+        );
+
+        $("div#flights").append(out);
+        this.show();
+
+        return true;
 
     }
 
@@ -132,8 +171,8 @@ $(document).ready(() => {
 
 
     // TODO Remove Me.
-    setTimeout(function() {
-        $426FlightsPanel.fill_with(1806, 1611);
-    }, 5000);
+    //setTimeout(function() {
+    //    $426FlightsPanel.fill_with(1662, 1611);
+    //}, 7000);
 
 });

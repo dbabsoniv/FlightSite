@@ -632,11 +632,9 @@ $426Map = new function() {
 
             }
 
-            // TODO Send info to Tickets interface.
             console.log(idSrc);
             console.log(idDest);
-
-            $("div#flights").addClass("flights-show");
+            $426FlightsPanel.fill_with(idDest, idSrc);
 
             return true;
 

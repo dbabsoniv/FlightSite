@@ -432,12 +432,18 @@ $426Controls = new function() {
 $(document).ready(() => {
 
     $("div#controls-src-container").on(
-        "input", "input#controls-airport-src",
-        $426Controls.autocomplete
+        "input", "input#controls-airport-src", function(e) {
+            $426Controls.autocomplete(e);
+            $426FlightsPanel.hide();
+            $426FlightsPanel.clear();
+        }
     );
     $("div#controls-dest-container").on(
-        "input", "input#controls-airport-dest",
-        $426Controls.autocomplete
+        "input", "input#controls-airport-dest", function(e) {
+            $426Controls.autocomplete(e);
+            $426FlightsPanel.hide();
+            $426FlightsPanel.clear();
+        }
     );
 
     $("div#controls-dest-container").on(
