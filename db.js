@@ -2151,7 +2151,13 @@ let _db_426Airports = function() {
 
                 $426Airports = this;
 
-                _db_on_airport_load();
+                $("div#blank").addClass("hide");
+                setTimeout(function() {
+                    $("div#blank").addClass("hidden")
+                    }, 1000
+                );
+
+                //_db_on_airport_load();
 
             },
             type: "GET",

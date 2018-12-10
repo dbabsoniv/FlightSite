@@ -10,6 +10,22 @@ select {
     margin: 0px 1em;
     text-align: center;
 }
+div#blank {
+    background: #0095FF;
+    font-size: 4.25em;
+    height: 100%;
+    left: 0px;
+    position: fixed;
+    text-align: center;
+    top: 0px;
+    transition-property: opacity;
+    transition-duration: 1000ms;
+    width: 100%;
+    z-index: 99;
+}
+div#blank.hide {
+    opacity: 0;
+}
 div#controls-container {
     margin-top: 1.25em;
     margin-left: 0;
@@ -367,6 +383,14 @@ div.ticket-information > div {
     user-select: none;
     -moz-user-select: -moz-none;
     width: 16px;
+}
+.marquee {
+    animation: marquee 3000ms linear infinite;
+    text-align: left;
+}
+@keyframes marquee {
+    0%   { transform: translate(0, 0); }
+    100% { transform: translate(100%, 0); }
 }
 .popup-airport p {
     text-align: center
