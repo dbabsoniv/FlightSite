@@ -1,7 +1,7 @@
 // itineraries.JS //
 $426ItinerariesPanel = new function() {
 
-    this._current = false;
+    this.filling = false;
 
     this.fillPacket = function() {
         this.airline = null;
@@ -20,6 +20,7 @@ $426ItinerariesPanel = new function() {
 
         if (typeof(r) === "number" && r === -1) {
 
+            this.filling = false;
             console.log("PANIC: Asynchronous request failed.");
             return -1;
 
@@ -53,6 +54,7 @@ $426ItinerariesPanel = new function() {
 
                                 } else {
 
+                                    this.filling = false;
                                     $426_ajax_handle_error(
                                         jqXHR, text, flight,
                                         "$426ItinerariesPanel.fill "
@@ -66,6 +68,7 @@ $426ItinerariesPanel = new function() {
                             },
                             (jqXHR, text, err) => {
 
+                                this.filling = false;
                                 $426_ajax_handle_error(
                                     jqXHR, text, err,
                                     "$426ItinerariesPanel.fill "
@@ -78,6 +81,7 @@ $426ItinerariesPanel = new function() {
 
                     } else {
 
+                        this.filling = false;
                         $426_ajax_handle_error(
                             jqXHR, text, insta,
                             "$426ItinerariesPanel.fill "
@@ -91,6 +95,7 @@ $426ItinerariesPanel = new function() {
                 },
                 (jqXHR, text, err) => {
 
+                    this.filling = false;
                     $426_ajax_handle_error(
                         jqXHR, text, err,
                         "$426ItinerariesPanel.fill "
@@ -128,6 +133,7 @@ $426ItinerariesPanel = new function() {
 
                             } else {
 
+                                this.filling = false;
                                 $426_ajax_handle_error(
                                     airline[2], airline[1], airline[0],
                                     "$426ItinerariesPanel.fill() "
@@ -146,6 +152,7 @@ $426ItinerariesPanel = new function() {
                         },
                         (jqXHR, text, err) => {
 
+                            this.filling = false;
                             $426_ajax_handle_error(
                                 jqXHR, text, err,
                                 "$426ItinerariesPanel.fill() "
@@ -169,7 +176,8 @@ $426ItinerariesPanel = new function() {
                                 $426ItinerariesPanel.fill(r);
 
                             } else {
-
+ 
+                                this.filling = false;
                                 $426_ajax_handle_error(
                                     jqXHR, text, airline,
                                     + "$426ItinerariesPanel.fill() "
@@ -183,6 +191,7 @@ $426ItinerariesPanel = new function() {
                         },
                         (jqXHR, text, err) => {
 
+                            this.filling = false;
                             $426_ajax_handle_error(
                                 jqXHR, text, err,
                                 + "$426ItinerariesPanel.fill() "
@@ -196,6 +205,7 @@ $426ItinerariesPanel = new function() {
 
                 }
 
+                this.filling = false;
                 return;
 
             }
@@ -206,6 +216,7 @@ $426ItinerariesPanel = new function() {
 
         } else {
 
+            this.filling = false;
             return false;
 
         }
@@ -213,13 +224,6 @@ $426ItinerariesPanel = new function() {
     }
 
     this._fill_text = (fillPacket) => {
-
-        if (!this._current) {
-
-            this._current = true;
-            this.clear();
-
-        }
 
         let out = (
             `<div class="itinerary">`
@@ -259,13 +263,20 @@ $426ItinerariesPanel = new function() {
 
         $("div#itineraries-container").append(out);
 
+        this.filling = false;
+        return true;
 
     }
 
     this.retrieve = (txt) => {
 
+        if (this.filling) {
+            return;
+        }
+
         if (txt.search(/[A-Z0-9]{10}/) >= 0) {
-            this._current = false;
+            this.clear();
+            this.filling = true;
             return $426Itinerary.retrieve_by_code(txt, $426ItinerariesPanel.fill);
         } else if (
             txt.search(/^[a-zA-Z0-9!#$%&'*+\-/=?^_`{|}~.]+@[a-zA-Z0-9.]+\.[a-zA-Z0-9]+$/) >= 0
