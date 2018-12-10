@@ -347,7 +347,7 @@ class Route(object):
 def build_routes():
 
     read_airlines("airlines_id.csv")
-    read_airports("airports_id.csv")
+    read_airports("airports_id_by_flights.csv")
     read_planes("planes_id.csv")
     read_routes("routes_id_simple.csv")
 
@@ -373,6 +373,7 @@ def build_routes():
         route.set_planeID(b_planeHash[route.planeUsed].id)
         route.set_srcID(b_airportHash[route.src].id)
 
+        """
         ar = []
         try:
             if route.dest not in b_routesUsed[route.src]:
@@ -385,6 +386,7 @@ def build_routes():
             b_routesUsed[route.dest].append(route.src)
         except KeyError:
             b_routesUsed[route.dest] = [route.src]
+        """
 
         route.set_dist(
             float(b_airportHash[route.dest].lat),
@@ -432,7 +434,7 @@ def build_routes():
         b_airlineRouteNum[route.airline] += 2
         b_routesOut.append(route)
 
-    write_file("routes_build.csv", b_routesOut);
+    write_file("routes_build_savior.csv", b_routesOut);
 
 def db_create():
 
@@ -574,12 +576,12 @@ def db_patch_airports():
 
 def db_patch_airports_by_flights():
 
-    return
+    return;
 
     login()
-    read_routes("routes_id_build.csv")
+    read_routes("routes_id_savior.csv")
     read_airlines("airlines_id.csv")
-    read_airports("airports_id_by_airlines.csv")
+    read_airports("airports_id_by_flights.csv")
 
     b_src = {};
 
@@ -621,7 +623,7 @@ def db_patch_airports_by_flights():
 
         time.sleep(0.25)
 
-    write_file("airports_id_by_flights.csv", AIRPORTS)
+    write_file("airports_id_by_flights_savior_db.csv", AIRPORTS)
 
 def db_write_airlines():
 
@@ -685,7 +687,7 @@ def db_write_flights():
     return
 
     login()
-    read_routes("routes_build.csv")
+    read_routes("routes_build_savior.csv")
 
     for i, route in enumerate(ROUTES):
 
@@ -730,11 +732,11 @@ def db_write_flights():
         route.set_id(r.json()["id"])
 
         if i % 1000  == 0:
-            write_file("routes_id.csv", ROUTES)
+            write_file("routes_id_savior_temp.csv", ROUTES)
         else:
             time.sleep(0.1)
 
-    write_file("routes_id_FINAL.csv", ROUTES)
+    write_file("routes_id_savior_FINAL.csv", ROUTES)
 
 def db_write_planes():
 
@@ -888,3 +890,4 @@ def update_routes():
         route.planeID = plane_codes[route.planeUsed].id
 
 if __name__ == "__main__":
+
