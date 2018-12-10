@@ -1,4 +1,4 @@
-// itineraries.JS //
+// ITINERARIES.JS //
 $426ItinerariesPanel = new function() {
 
     this.filling = false;
