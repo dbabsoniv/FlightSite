@@ -446,6 +446,8 @@ $426Map = new function() {
         $426Controls._src = null;
         $426Controls._dest = null;
 
+        $426FlightsPanel.hide();
+        $426FlightsPanel.clear();
         this.clear();
 
         // This is being purposefully kept around if we need these
