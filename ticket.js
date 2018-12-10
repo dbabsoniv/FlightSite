@@ -1,24 +1,177 @@
 // TICKET.JS //
 $426TicketPanel= new function() {
 
-    this.clear = () => {}
+    this.flight = null;
+    this.plane = null;
+    this.price = null;
+
+    // Step 0: Closed
+    // Step 1: Information
+    // Step 2: Seat
+    // Step 3: Confirmation Code
+    this._step = 0;
+
+    this.clear = () => {
+
+        $("div#ticket-where").html("");
+        $("div#ticket-content").html("");
+        // Removes all classes.
+        $("div#ticket-content").removeClass();
+        this._flight = null;
+        this._plane = null;
+        this._price = null;
+        this._step = 0;
+
+    }
+    this.close = () => {
+
+        this.hide();
+        $("div#flights").addClass("flights-show");
+        this._flight = null;
+        this._plane = null;
+        this._price = null;
+        this._step = 0;
+
+    }
+
+    this.confirmation = (code) => {
+
+        
+
+    }
+
+    this.done = () => {
+
+        this.hide();
+        $426Map.reset();
+        this.clear();
+
+    }
+
+    this.get_step = () => { return this._step; }
+
     this.hide = () => {
         $("div#ticket").removeClass("ticket-show");
     }
-    this.show = () => {
+
+    this.input_information = () => {
+
+         
+        let code = $426Itinerary.generate_code();  
+        let date = $426_sanitize($("input#ticket-date").val());
+        let email = $426_sanitize($("input#ticket-email").val());
+        let nameFirst = $426_sanitize($("input#ticket-first").val());
+        let nameMiddle = $426_sanitize($("input#ticket-middle").val());
+        let nameLast = $426_sanitize($("input#ticket-last"),val());
+        let sal = $426_sanitize($("input#ticket-sal").val());
+        let suffix = $426_santize($("input#ticket-suffix").val());
+
+
+    }
+
+    this.input_seat = () => {}
+
+    this.show_ticket = (codeDest, codeSrc, flight, number, plane, price) => {
+
+        this._flight = flight;
+        this._plane = plane;
+        this._price = price;
+
+        let div = $("div#ticket-content");
+        div.addClass("ticket-information");
+        let now = new Date();
+
+        $("div#ticket-where").html(
+            `<p>${number}</p><p>${codeSrc} ⇒ ${codeDest}</p>`
+        );
+
+        out = (
+            `<div>`
+            + `<input id="ticket-sal" type="text" maxlength="11"`
+            + `placeholder="Salutations"><input id="ticket-first"`
+            + `type="text" maxlength="512" placeholder="First Name">`
+            + `</div><div><input id="ticket-middle" maxlength="512" `
+            + `placeholder="Middle Name" type="text"></div><div>`
+            + `<input id="ticket-last" maxlength="512" placeholder=`
+            + `"Last Name" type="text"><input id="ticket-suffix" `
+            + `maxlength="10" placeholder="Suffix" type="text"></div>`
+            + `<div><input id="ticket-date" type="date" `
+            + `value="${now.getFullYear()}-`
+            + `${now.getMonth()+1}-${now.getDate()}" min="`
+            + `${now.getFullYear()}-${now.getMonth()+1}-`
+            + `${now.getDate()}" max="${now.getFullYear()+1}-`
+            + `${now.getMonth()+1}-${now.getDate()}">`
+            + `<input id="ticket-gender" maxlength="256" `
+            + `placeholder="Gender" type="text"></div>`
+            + `<div><input id="ticket-email" maxlength="512" placeholder=`
+            + `"Email Address" type="text"></div>`
+            
+        )
+        div.html(out);
+        this.step = 1;
         $("div#ticket").addClass("ticket-show");
+
     }
 
 }
 
 $(document).ready(() => {
 
-    $("div#ticket-button-temp").click(function(e) {
-        $426Map.reset();
-        $426TicketPanel.hide();
-        $426Controls.show();
-        $426TicketPanel.clear()
+    $("div#ticket-button-back").click(function(e) {
+
+        switch($426TicketPanel.get_step()) {
+
+            case 0:
+                $426TicketPanel.done();
+                break;
+            case 1:
+                $426TicketPanel.close();
+                break;
+            case 2: // Not suportted without seat interface. 
+                break;
+            case 3:
+                $426TicketPanel.done();
+                break;
+            default:
+                $426TicketPanel.done();
+
+        }
+
     });
+
+    $("div#ticket-button-next").click(function(e) {
+
+        switch($426TicketPanel.get_step()) {
+
+            case 0:
+                $426TicketPanel.done();
+                break;
+            case 1:
+                $426TicketPanel.purchase();
+                break;
+            case 2: // Not suportted without seat interface. 
+                break;
+            case 3: // Should never be visible.
+                $426TicketPanel.done();
+                break;
+            default:
+                $426TicketPanel.done();
+
+        }
+
+    });
+
+    $426TicketPanel.show_ticket(
+        "ATL",
+        "CLT",
+        "500000",
+        "DAL 500",
+        "100",
+        "123.45"
+    );
+
+
+    return;
 
     //recieve airport codes for start (1) and destination (2)
     portCode1 = "ATL";

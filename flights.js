@@ -81,6 +81,8 @@ $426FlightsPanel = new function() {
 
     this.fill_text = (airline, flight, plane) => {
 
+        let codeDest = $426Airports.get_code(flight.get_arrival_id());
+        let codeSrc = $426Airports.get_code(flight.get_departure_id());
         let price = parseFloat($426Ticket.make_price(flight)).toFixed(2);
 
         let out = (
@@ -100,18 +102,19 @@ $426FlightsPanel = new function() {
             `${out}</div><div class="flight-details"><p>`
             + `${flight.get_departure_time_string()} - `
             + `${flight.get_arrival_time_string()}</p><p>` 
-            + `${$426Airports.get_code(flight.get_departure_id())}`
-            + ` ⇒ `
-            + `${$426Airports.get_code(flight.get_arrival_id())}`
+            + `${codeSrc} ⇒ ${codeDest}`
             + `</p><p>Distance: `
             + `${flight.get_distance_m().toLocaleString()} Miles`
             + `</p>`
             + `<p>${plane.get_name()}</p>`
             + `</div><div class="flight-purchase"><p>\$`
             + `${price}</p><div class="flight-button" `
+            + `data-dest="${codeDest}" `
             + `data-flight="${flight.get_id()}" `
+            + `data-number="${flight.get_number}" `
             + `data-plane="${plane.get_id()}" `
-            + `data-price="${price}"</div>`
+            + `data-price="${price}" `
+            + `data-src="${codeSrc}"</div>`
             + `<p>Select</p></div>`
             + `</div></div>`
         );
@@ -163,11 +166,16 @@ $426FlightsPanel = new function() {
 
 $(document).ready(() => {
 
-    $("div#flights-button-temp").click(function(e) {
-        $426FlightsPanel.hide();
-        $426Controls.hide();
-        $426TicketPanel.show();
-    }); 
+    $("div#flights").on("click", "div.flight-button", function(e) {
+
+        let button = $(e.target);
+        $426TicketPanel.show_ticket(
+            +button.attr("data-flight"),
+            +button.attr("data-plane"),
+            +button.attr("data-price")
+        );
+
+    });
 
 
     // TODO Remove Me.

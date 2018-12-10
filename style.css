@@ -1,5 +1,6 @@
 body {
     font-family: Arial, Helvetica, sans-serif;
+    overflow-x: hidden;
 }
 div#controls-container {
     margin-top: 1.25em;
@@ -168,14 +169,17 @@ div#ticket {
     border-style: solid;
     border-width: 0.2em;
     border-radius: 25px;
-    height: 90%;
-    left: 5%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 92.5%;
+    left: 1%;
     opacity: 0;
     overflow: auto;
     padding: 1em;
     position: absolute;
-    top: 5%;
-    width: 90%;
+    top: 2.5%;
+    width: 96%;
     transition: all 0.5s ease;
     -webkit-animation: all 0.5s ease;
     visibility: hidden;
@@ -185,7 +189,41 @@ div#ticket.ticket-show {
     opacity: 1;
     visibility: visible;
 }
-div.autocomplete:hover, div.flight-button:hover{
+div#ticket-buttons {
+    align-items: stretch;
+    display: flex;
+    justify-content: space-evenly;
+    text-align: center;
+}
+div#ticket-buttons > div {
+    background: #F1F1F1;
+    border-style: solid;
+    border-width: 0.2em;
+    border-color: black;
+    border-radius: 25px;
+    color: black;
+    font-size: 1.5em;
+    font-weight: bold;
+    margin: auto 2em;
+    width: 50%;
+}
+div#ticket-where {
+    align-items: baseline;
+    display: flex;
+    color: white;
+    flex-shrink: 2;
+    font-size: 3em;
+    font-weight: bold;
+    justify-content: space-evenly;
+    text-align: center;
+}
+div#ticket-where p {
+    margin: 0px auto;
+}
+input#ticket-sal, input#ticket-suffix {
+    width: 15em;
+}
+div.autocomplete:hover, div.flight-button:hover, div#ticket-buttons > div:hover {
     background: #0095FF !important;
     color: black !important;
 }
@@ -265,6 +303,22 @@ div.itinerary-flight > div p:first-child, div.itinerary-instance > div p:first-c
 div.itinerary-flight > div p:nth-child(2), div.itinerary-instance > div p:nth-child(2) {
     font-size: 1.25em;
     margin-top: 0.5em;
+}
+div.ticket-information {
+    align-content: stretch;
+    display: flex;
+    font-size: 2.25em;
+    flex-direction: column;
+}
+div.ticket-information input {
+    margin: 1em 0.5em;
+    font-size: inherit;
+    text-align: center;
+    width: 100%
+}
+div.ticket-information > div {
+    display: flex;
+    flex-grow: 1;
 }
 .flight-operator {
     font-size: 0.8em;
