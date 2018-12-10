@@ -28,7 +28,7 @@
                 <input
                     type="text" id="controls-airport-src"
                     placeholder="Origin: City or Airport"
-                    size="25" spellcheck="false"
+                    maxlength="256" size="25" spellcheck="false"
                 >
             </div>
             <div>
@@ -38,7 +38,7 @@
                 <input
                     type="text" id="controls-airport-dest"
                     placeholder="Destination: City or Airport"
-                    size="25" spellcheck="false"
+                    maxlength="256" size="25" spellcheck="false"
                 >
             </div>
         </div>        
@@ -48,15 +48,14 @@
         <div id="controls-autocomplete-container"></div>
     </div>
     <div id="flights">
-        <div id="flights-button-temp">Ticket Window</div>
+    <!--<div id="flights" class="flights-show">-->
     </div>
-    <!--FIXME Nonbreaking space is for testing only. Should be removed.-->
     <div id="itineraries">
         <div id="itineraries-search-container">
             <input
                 type="text" id="itineraries-search"
                 placeholder="Search by Confirmation Code or Email Address"
-                spellcheck="false"
+                maxlength="256" spellcheck="false"
             >
         </div>
         <div id="itineraries-container">
