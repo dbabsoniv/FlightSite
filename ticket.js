@@ -1,9 +1,12 @@
 // TICKET.JS //
 $426TicketPanel= new function() {
 
-    this.flight = null;
-    this.plane = null;
-    this.price = null;
+    this._code = null;
+    this._flight = null;
+    this._instance = null;
+    this._itinerary = null;
+    this._plane = null;
+    this._price = null;
 
     // Step 0: Closed
     // Step 1: Information
@@ -17,7 +20,11 @@ $426TicketPanel= new function() {
         $("div#ticket-content").html("");
         // Removes all classes.
         $("div#ticket-content").removeClass();
+
+        this._code = null;
         this._flight = null;
+        this._instance = null;
+        this._itinerary = null;
         this._plane = null;
         this._price = null;
         this._step = 0;
@@ -26,17 +33,17 @@ $426TicketPanel= new function() {
     this.close = () => {
 
         this.hide();
-        $("div#flights").addClass("flights-show");
-        this._flight = null;
-        this._plane = null;
-        this._price = null;
-        this._step = 0;
+        $426FlightsPanel.show();
+        this.clear();
 
     }
 
-    this.confirmation = (code) => {
+    this.confirmation = () => {
 
-        
+        this._status = 3;
+        $("div#ticket-content").html(
+            `<h1>Confirmation Code:</h1><br><h1>${this._code}</h1>`
+        );
 
     }
 
@@ -55,17 +62,170 @@ $426TicketPanel= new function() {
     }
 
     this.input_information = () => {
-
          
-        let code = $426Itinerary.generate_code();  
+        let age = +$("select#ticket-age").val();
         let date = $426_sanitize($("input#ticket-date").val());
         let email = $426_sanitize($("input#ticket-email").val());
+        let gender = $426_sanitize($("input#ticket-gender").val());
         let nameFirst = $426_sanitize($("input#ticket-first").val());
         let nameMiddle = $426_sanitize($("input#ticket-middle").val());
-        let nameLast = $426_sanitize($("input#ticket-last"),val());
+        let nameLast = $426_sanitize($("input#ticket-last").val());
         let sal = $426_sanitize($("input#ticket-sal").val());
-        let suffix = $426_santize($("input#ticket-suffix").val());
+        let suffix = $426_sanitize($("input#ticket-suffix").val());
+        if (
+            email === ""
+            || email.search(/^[a-zA-Z0-9!#$%&'*+\-/=?^_`{|}~.]+@[a-zA-Z0-9.]+\.[a-zA-Z0-9]+$/) < 0
+        ) {
+            $("input#ticket-email").addClass("illegal")
+            setTimeout(function() {
+                    $("input#ticket-email").removeClass("illegal");
+                }, 1500
+            );
+        }
+        if (nameFirst === "") {
+            $("input#ticket-gender").addClass("illegal")
+            setTimeout(function() {
+                    $("input#ticket-gender").removeClass("illegal");
+                }, 2000
+            );
+        }
+        if (nameFirst === "") {
+            $("input#ticket-first").addClass("illegal")
+            setTimeout(function() {
+                    $("input#ticket-first").removeClass("illegal");
+                }, 2000
+            );
+        }
+        if (nameLast === "") {
+            $("input#ticket-last").addClass("illegal")
+            setTimeout(function() {
+                    $("input#ticket-last").removeClass("illegal");
+                }, 2000
+            );
+        }
 
+        console.log(`Flight: ${this._flight}`);
+        // FIXME Thanks to date, this can fail in normal operation.
+        // That must be caught and handled appropriate.
+        let r = $426Instance.create(
+            // FIXME Currently not supporting seats.
+            date, this._flight, "", (insta) => {
+                
+                if (typeof(insta) === "number" && insta === -1) {
+
+                    console.log(
+                        "PANIC: $426TicketPanel.input_information() "
+                        + "could not create instance via " 
+                        + "$426Instance.create(). Asynchronous error."
+                        + `Error Code: ${insta}`
+                    )
+
+                } else {
+
+                    this._instance = insta;
+                    if (this._code != null && this._itinerary != null) {
+                        create();
+                    }
+
+                }
+
+        });
+        if (typeof(r) === "number") {
+            console.log(
+                "PANIC: $426TicketPanel.input_information() "
+                + "could not create instance via "
+                + "$426Instance.create. Bad parameters. "
+                + `Error Code: ${r}`
+            );
+            return r;
+        }
+
+        let itinerary_create = (email) => {
+
+            this._code = $426Itinerary.generate_code();  
+            $426Itinerary.create(this._code, email, (itin) => {
+
+                if (typeof(itin) === "boolean" && !itin) {
+
+                    itinerary_create(email);
+
+                } else if (typeof(itin) === "number") {
+
+                    console.log(
+                        "PANIC: $426TicketPanle.input_information() "
+                        + "could not create itinerary via "
+                        + "$426Itinerary.create(). Asynchronous error. "
+                        + `Error Code: ${r}`
+                    );
+
+                } else {
+
+                    this._itinerary = itin;
+                    if (this._instance != null) {
+                        create()
+                    }
+
+                }
+    
+
+            });
+
+        }
+        r = itinerary_create(email);
+        if (typeof(r) === "number") {
+            console.log(
+                "PANIC: $426TicketPnael.input_information() "
+                + "could not create itinerary via "
+                + "$426Itinerary.create(). Bad parameters. "
+                + `Error Code: ${r}` 
+            );
+            return r;
+        }
+
+        let create = () => {
+
+            r = $426Ticket.create(
+                age,
+                gender,
+                this._instance.get_id(),
+                this._itinerary.get_id(),
+                nameFirst,
+                nameMiddle,
+                nameLast,
+                sal,
+                suffix,
+                this._price,
+                //FIXME Seats are currently not supported.
+                "",
+                (ticket) => {
+
+                    if (typeof(ticket) === "number") {
+                        console.log(
+                            "PANIC: $426TicketPanel.input_information() "
+                            + "could not create ticket via "
+                            + "$426Ticket.create(). Asynchronous error. "
+                            + `Error Code: ${ticket}`
+                        );
+                        return ticket;
+                    } else {
+                        this.confirmation();
+                    }
+
+                }
+            );
+            if (typeof(r) === "number") {
+                console.log(
+                    "PANIC: $426TicketPanel.input_information() "
+                    + "could not create ticket via "
+                    + "$426Ticket.create(). Bad parameters. "
+                    + `Error Code: ${r}`
+                );
+                return r;
+            }
+
+        }
+
+        return true;
 
     }
 
@@ -95,20 +255,25 @@ $426TicketPanel= new function() {
             + `<input id="ticket-last" maxlength="512" placeholder=`
             + `"Last Name" type="text"><input id="ticket-suffix" `
             + `maxlength="10" placeholder="Suffix" type="text"></div>`
-            + `<div><input id="ticket-date" type="date" `
-            + `value="${now.getFullYear()}-`
+            + `<div><p>Depature&nbsp;Date</p><input id="ticket-date" `
+            + `type="date" value="${now.getFullYear()}-`
             + `${now.getMonth()+1}-${now.getDate()}" min="`
             + `${now.getFullYear()}-${now.getMonth()+1}-`
             + `${now.getDate()}" max="${now.getFullYear()+1}-`
             + `${now.getMonth()+1}-${now.getDate()}">`
-            + `<input id="ticket-gender" maxlength="256" `
+            + `<p>Age</p><select id="ticket-age">`
+        );
+        for (let i = 0; i < 131; ++i) {
+            out = `${out}<option value="${i}">${i}</option>`;
+        }
+        out = (
+            `${out}</select><input id="ticket-gender" maxlength="256" `
             + `placeholder="Gender" type="text"></div>`
             + `<div><input id="ticket-email" maxlength="512" placeholder=`
             + `"Email Address" type="text"></div>`
-            
-        )
+        );
         div.html(out);
-        this.step = 1;
+        this._step = 1;
         $("div#ticket").addClass("ticket-show");
 
     }
@@ -147,7 +312,7 @@ $(document).ready(() => {
                 $426TicketPanel.done();
                 break;
             case 1:
-                $426TicketPanel.purchase();
+                $426TicketPanel.input_information();
                 break;
             case 2: // Not suportted without seat interface. 
                 break;
@@ -161,13 +326,14 @@ $(document).ready(() => {
 
     });
 
+
     $426TicketPanel.show_ticket(
         "ATL",
         "CLT",
-        "500000",
+        660556,
         "DAL 500",
-        "100",
-        "123.45"
+        100,
+        123.45
     );
 
 

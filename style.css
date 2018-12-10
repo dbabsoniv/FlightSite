@@ -2,6 +2,14 @@ body {
     font-family: Arial, Helvetica, sans-serif;
     overflow-x: hidden;
 }
+input {
+    transition-property: background, color;
+    transition-duration: 500ms;
+}
+select {
+    margin: 0px 1em;
+    text-align: center;
+}
 div#controls-container {
     margin-top: 1.25em;
     margin-left: 0;
@@ -221,7 +229,7 @@ div#ticket-where p {
     margin: 0px auto;
 }
 input#ticket-sal, input#ticket-suffix {
-    width: 15em;
+    width: 7em;
 }
 div.autocomplete:hover, div.flight-button:hover, div#ticket-buttons > div:hover {
     background: #0095FF !important;
@@ -246,9 +254,9 @@ div.itinerary, div.flight {
 }
 div.flight img {
     display: inline-block;
-    height: 30px;
+    height: 40px;
     margin-right: 0.5em;
-    width: 30px;
+    width: 40px;
     vertical-align: middle;
 }
 div.flight-button {
@@ -306,6 +314,7 @@ div.itinerary-flight > div p:nth-child(2), div.itinerary-instance > div p:nth-ch
 }
 div.ticket-information {
     align-content: stretch;
+    color: black;
     display: flex;
     font-size: 2.25em;
     flex-direction: column;
@@ -317,6 +326,7 @@ div.ticket-information input {
     width: 100%
 }
 div.ticket-information > div {
+    align-items: center;
     display: flex;
     flex-grow: 1;
 }
@@ -331,6 +341,10 @@ div.ticket-information > div {
 }
 .hidden {
     display: none;
+}
+.illegal {
+    background: red;
+    color: black;
 }
 .marker-airport {
     /*background-color: blue;*/

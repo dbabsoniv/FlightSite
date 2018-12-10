@@ -111,7 +111,7 @@ $426FlightsPanel = new function() {
             + `${price}</p><div class="flight-button" `
             + `data-dest="${codeDest}" `
             + `data-flight="${flight.get_id()}" `
-            + `data-number="${flight.get_number}" `
+            + `data-number="${flight.get_number()}" `
             + `data-plane="${plane.get_id()}" `
             + `data-price="${price}" `
             + `data-src="${codeSrc}"</div>`
@@ -168,9 +168,12 @@ $(document).ready(() => {
 
     $("div#flights").on("click", "div.flight-button", function(e) {
 
-        let button = $(e.target);
+        let button = $(e.target).parent();
         $426TicketPanel.show_ticket(
+            button.attr("data-dest"),
+            button.attr("data-src"),
             +button.attr("data-flight"),
+            button.attr("data-number"),
             +button.attr("data-plane"),
             +button.attr("data-price")
         );

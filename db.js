@@ -508,6 +508,9 @@ $426Instance = function(oData) {
 //FIXME February 31st is "legal" currently. More checks are necessary.
 $426Instance.create = function(date, idFlight, seat, func) {
 
+    // FIXME If supporting seats.
+    seat = "";
+
     if (typeof(date) !== "string") {
 
         return -1;
@@ -559,12 +562,13 @@ $426Instance.create = function(date, idFlight, seat, func) {
 
     if (typeof(idFlight) !== "number") {
         return -2;
-    } else if (idFlight < 1836 || idFlight > 18691) {
+    } else if (idFlight < 660155 || idFlight > 708976) {
         return -7;
     } else if (typeof(seat) !== "string") {
         return -3;
-    } else if (seat.match(/^\d{1,2}[A-O]$/) === null) {
-        return -8
+    // FIXME If supporting seats.
+    //} else if (seat.match(/^\d{1,2}[A-O]$/) === null) {
+    //    return -8
     } else if (!(func instanceof Function)) {
         return -4;
     }
@@ -633,7 +637,8 @@ $426Instance._create = function(date, idFlight, seat, func) {
     const pack = {
         date: date,
         flight_id: idFlight,
-        info: JSON.stringify([seat])
+        // FIXME If support seats.
+        //info: JSON.stringify([seat])
     }; 
 
     $.ajax(
@@ -851,8 +856,8 @@ $426Itinerary = function(oData) {
 
 }
 /*
- * Creates a new Itinerary resource in the database.
- *
+ *  Creates a new Itinerary resource in the database.
+ *  FIXME I dont think this paragraph is true. FIXME
  *  If an instance aligning with the request already exists in the
  *  database, that is returned instead, and no new instance is
  *  created. This behavior is silent.
@@ -1073,10 +1078,12 @@ $426Itinerary.retrieve_by_code = function(code, func) {
 
                 } else if (data.length !== 1) {
 
-                    $426_ajax_handle_error(
-                        jqXHR, text, data,
-                        "$426Itinerary.retrieve_by_code success"
-                    );
+                    // This is a common outcome during duplicate
+                    // testing. The printout isn't helpful.
+                    //$426_ajax_handle_error(
+                    //    jqXHR, text, data,
+                    //    "$426Itinerary.retrieve_by_code success"
+                    //);
                     func(false);
                     return;
 
@@ -1443,6 +1450,9 @@ $426Ticket.create = function(
     func,
 ) {
 
+    //FIXME Currently not supporting seats.
+    seat = "";
+
     if (typeof(age) !== "number") {
         return -1;
     } else if (typeof(gender) !== "string" || gender === "") {
@@ -1467,8 +1477,9 @@ $426Ticket.create = function(
         return -11;
     } else if (!(func instanceof Function)) {
         return -12;
-    } else if (seat.match(/^\d{1,2}[A-O]$/) === null) {
-        return -13;
+    //FIXME Currently not supporting seats.
+    //} else if (seat.match(/^\d{1,2}[A-O]$/) === null) {
+    //    return -13;
     }
 
     return $.when(
@@ -1521,7 +1532,7 @@ $426Ticket.create = function(
                             },
                             success: (data, text, jqXHR) => {
 
-                                if (jqXHR["status"] === 201 || data == null) {
+                                if (jqXHR["status"] !== 201 || data == null) {
                                     $426_ajax_handle_error(
                                         jqXHR, text, data,
                                         "$426Ticket.create (inner) success"
