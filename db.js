@@ -122,7 +122,7 @@ $426Flight = function(oData) {
     }
 
     /*
-     *  Gets the depature time of this flight.
+     *  Gets the departure time of this flight.
      *
      *  Returns
      *  -------
@@ -131,9 +131,9 @@ $426Flight = function(oData) {
      *        source airport of this flight.
      */
     this.get_departure_time_string = () => {
-        return db_tz.get_depature(
-            this.get_depature_id(),
-            this.get_depature_time_raw()
+        return db_tz.get_departure(
+            this.get_departure_id(),
+            this.get_departure_time_raw()
         );
         //return oData["departs_at"].replace(/^2000-01-01T/, "").replace(/:00\.000Z$/, "");
     }
@@ -172,6 +172,9 @@ $426Flight = function(oData) {
     this.get_distance_m = () => {
         return Math.ceil((+oData["info"]) * 0.621371)
     }
+
+    // Gets this flight's ID, an integer.
+    this.get_id = () => { return oData["id"]; }
 
     /*
      *  Gets the airline ID of the operator of this flight.
@@ -256,7 +259,7 @@ $426Flight.retrieve_flights = function (id_dest, id_src, func) {
         return false;
     }
 
-    //console.log(ids_flights.length)
+    console.log(ids_flights.length)
     for (const id_flight of ids_flights) {
 
         $.ajax(
@@ -323,7 +326,7 @@ $426Flight.time_string_to_raw = function(time) {
     } else if (time.search(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/) < 0) {
         return -2;
     } else {
-        let time = time.replace(/^2000-01-01T/, "").replace(/:00\.000Z$$/, "");
+        time = time.replace(/^2000-01-01T/, "").replace(/:00\.000Z$$/, "");
         return parseInt(time.replace(/:\d{2}$/, "")) * 60 + parseInt(time.replace(/^\d{2}:/, ""));
     }
 
@@ -1193,6 +1196,9 @@ $426Plane = function(oData) {
 
     oData["info"] = JSON.parse(oData["info"]);
 
+    // Gets this plane's ID, an integer.
+    this.get_id = () => { return oData["id"]; }
+
     // Gets the name of the plane, a string.
     this.get_name = () => { return oData["name"]; }
     // Gets the number of rows in the plane, a number (integer).
@@ -1572,11 +1578,11 @@ $426Ticket.create = function(
 $426Ticket.make_price = function(flight) {
 
     let r = Math.random();
-    // 1000 / 200 * 0.621371 * 100 = 12.42742
+    // 200 / 1000 * 0.621371 = 0.3106855 ~~ 0.3
     if (r > 0.5) {
-        return flight.get_distance_km() * r * 12.42742;
+        return flight.get_distance_km() * 0.3 + (50 * r);
     } else {
-        return flight.get_distance_km() * r * 24.85484;
+        return flight.get_distance_km() * 0.3 - (100 * r);
     }
 
 }
@@ -1852,7 +1858,7 @@ let db_tz = new function() {
             console.log(tz);
         }
 
-        time = time + (zoneDest - zoneSrc) * 60;
+        time = time + (zoneSrc - zoneDest) * 60;
         if (time > 1440) {
             time %= 1440;
         } else if (time < 0) {
@@ -1861,25 +1867,32 @@ let db_tz = new function() {
 
         let hour = Math.floor(time / 60);
         let min = time % 60; 
+        if (min < 10) {
+            min = `0${min}`;
+        }
 
         if (hour > 12) {
-            return `${hour % 12}:{min}PM ${suffix}`
+            return `${hour % 12}:${min}pm&nbsp;${suffix}`
         } else {
-            return `${hour}:{min}AM ${suffix}`
+            return `${hour}:${min}am&nbsp${suffix}`
         }
 
     }
 
-    this.get_depature = (idSrc, time) => {
+    this.get_departure = (idSrc, time) => {
 
         let hour = Math.floor(time / 60);
         let min = time % 60; 
         let out = undefined;
 
+        if (min < 10) {
+            min = `0${min}`;
+        }
+
         if (hour > 12) {
-            out = `${hour % 12}:{min}PM`
+            out = `${hour % 12}:${min}pm`
         } else {
-            out = `${hour}:{min}AM`
+            out = `${hour}:${min}am`
         }
 
         let tz = tzlookup(
@@ -1888,21 +1901,21 @@ let db_tz = new function() {
         ); 
 
         if (this.NST.includes(tz)) {
-            out = `${out} NST`
+            out = `${out}&nbsp;NST`
         } else if (this.AST.includes(tz)) {
-            out = `${out} AST` 
+            out = `${out}&nbsp;AST` 
         } else if (this.EST.includes(tz)) {
-            out = `${out} EST` 
+            out = `${out}&nbsp;EST` 
         } else if (this.CST.includes(tz)) {
-            out = `${out} CST` 
+            out = `${out}&nbsp;CST` 
         } else if (this.MST.includes(tz)) {
-            out = `${out} MST` 
+            out = `${out}&nbsp;MST` 
         } else if (this.PST.includes(tz)) {
-            out = `${out} PST` 
+            out = `${out}&nbsp;PST` 
         } else if (this.AKST.includes(tz)) {
-            out = `${out} AKST` 
+            out = `${out}&nbsp;AKST` 
         } else if (this.HST.includes(tz)) {
-            out = `${out} HST` 
+            out = `${out}&nbsp;HST` 
         } else {
             console.log(
                 "TZ PANIC: Timezone found does not exist "
