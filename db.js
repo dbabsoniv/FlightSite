@@ -1597,7 +1597,12 @@ $426Ticket.make_price = function(flight) {
     if (r > 0.5) {
         return flight.get_distance_km() * 0.3 + (50 * r);
     } else {
-        return flight.get_distance_km() * 0.3 - (100 * r);
+        let r = flight.get_distance_km() * 0.3 - (100 * r);
+        if (r < 20) {
+            return 19.99;
+        } else {
+            return r;
+        }
     }
 
 }
