@@ -259,7 +259,7 @@ $426Flight.retrieve_flights = function (id_dest, id_src, func) {
         return false;
     }
 
-    console.log(ids_flights.length)
+    //console.log(ids_flights.length)
     for (const id_flight of ids_flights) {
 
         $.ajax(
@@ -1318,7 +1318,7 @@ $426Ticket._check_tickets = function(pack) {
                 },
                 success: (data, text, jqXHR) => {
 
-                    console.log(`Filtered: ${data}`);
+                    //console.log(`Filtered: ${data}`);
 
                     if (jqXHR["status"] !== 200) {
                         reject(-5);
@@ -1366,6 +1366,7 @@ $426Ticket._check_tickets = function(pack) {
  *  Parameters
  *  ----------
  *  Age         : (Number - Integer) Age of the new ticket holder.
+ *                Must be greater than zero.
  *  Gender      : (String) Gender of the new ticket holder.
  *                Any non-empty string is a valid gender.
  *  idInstance  : (Number - Integer) ID of the flight instance
@@ -1410,6 +1411,7 @@ $426Ticket._check_tickets = function(pack) {
  *  -13     : seat is improperly formatting for a seat.
  *            Seats are of the form "ROWLETTER", e.g."04B".
  *            Letters below O are illegal.
+ *  -14     : Age is less than 1.
  *  promise : promise object. Caller should not wait on this
  *            object, as it is meant for debugging only. Argument
  *            func will handle asynchronous returns.
@@ -1480,6 +1482,8 @@ $426Ticket.create = function(
     //FIXME Currently not supporting seats.
     //} else if (seat.match(/^\d{1,2}[A-O]$/) === null) {
     //    return -13;
+    } else if (age < 1) {
+        return -14
     }
 
     return $.when(
@@ -1830,6 +1834,7 @@ let db_tz = new function() {
                 "TZ PANIC: Timezone found does not exist "
                 + "in the lookup arrays."
             );
+            console.log(tz);
         }
 
         tz = tzlookup(
@@ -1882,9 +1887,15 @@ let db_tz = new function() {
             min = `0${min}`;
         }
 
-        if (hour > 12) {
-            return `${hour % 12}:${min}pm&nbsp;${suffix}`
+        if (hour > 11 && hour < 23) {
+            if (hour > 12) {
+                hour -= 12;
+            }
+            return `${hour}:${min}pm&nbsp;${suffix}`
         } else {
+            if (hour < 1) {
+                hour = 12;
+            }
             return `${hour}:${min}am&nbsp${suffix}`
         }
 
@@ -1900,9 +1911,15 @@ let db_tz = new function() {
             min = `0${min}`;
         }
 
-        if (hour > 12) {
-            out = `${hour % 12}:${min}pm`
+        if (hour > 11 && hour < 23) {
+            if (hour > 12) {
+                hour -= 12;
+            }
+            out = `${hour}:${min}pm`
         } else {
+            if (hour < 1) {
+                hour = 12;
+            }
             out = `${hour}:${min}am`
         }
 
