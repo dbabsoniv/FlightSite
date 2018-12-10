@@ -103,7 +103,12 @@ $426Flight = function(oData) {
      *        source airport of this flight.
      */
     this.get_arrival_time_string = () => {
-        return oData["arrives_at"].replace(/^2000-01-01T/, "").replace(/:00\.000Z$/, "");
+        return db_tz.get_arrival(
+            this.get_arrival_id(),
+            this.get_departure_id(),
+            this.get_arrival_time_raw()
+        );
+        //return oData["arrives_at"].replace(/^2000-01-01T/, "").replace(/:00\.000Z$/, "");
     }
 
     // Get the airport ID of the source airport of this flight, a
@@ -126,7 +131,11 @@ $426Flight = function(oData) {
      *        source airport of this flight.
      */
     this.get_departure_time_string = () => {
-        return oData["departs_at"].replace(/^2000-01-01T/, "").replace(/:00\.000Z$/, "");
+        return db_tz.get_depature(
+            this.get_depature_id(),
+            this.get_depature_time_raw()
+        );
+        //return oData["departs_at"].replace(/^2000-01-01T/, "").replace(/:00\.000Z$/, "");
     }
 
     /*
@@ -247,6 +256,7 @@ $426Flight.retrieve_flights = function (id_dest, id_src, func) {
         return false;
     }
 
+    //console.log(ids_flights.length)
     for (const id_flight of ids_flights) {
 
         $.ajax(
@@ -1734,6 +1744,179 @@ $426_sanitize = function(s) {
     );
 }
 
+let db_tz = new function() {
+
+    this.NST = ["America/St_Johns"] 
+    this.AST = [
+        "America/Goose_Bay", "America/Halifax", 
+    ]; 
+    this.EST = [
+        "America/Iqaluit", "America/Blanc-Sablon",
+        "America/Detroit", "America/Toronto", 
+        "America/Thunder_Bay", "America/Pangnirtung",
+        "America/New_York", "America/Indiana/Indianapolis",
+        "America/Kentucky/Louisville"
+    ];
+    this.CST = [
+        "America/Winnipeg", "America/Rankin_Inlet",
+        "America/Regina", "America/Chicago"
+    ];
+    this.MST = [
+        "America/Yellowknife", "America/Cambridge_Bay",
+        "America/Dawson_Creek", "America/Edmonton",
+        "America/Fort_Nelson", "America/Denver",
+        "America/Boise", "America/Phoenix"
+    ];
+    this.PST = [
+        "America/Vancouver", "America/Whitehorse",
+        "America/Los_Angeles"
+    ];
+    this.AKST = [
+        "America/Anchorage", "America/Nome",
+        "America/Juneau", "America/Sitka",
+        "America/Yakutat"
+    ];
+    this.HST = [
+        "America/Adak", "Pacific/Honolulu"
+    ];
+
+    this.get_arrival = (idDest, idSrc, time) => {
+
+        let out = null;
+        let suffix = null;
+        let zoneDest = 2;
+        let zoneSrc = 2;
+
+        let tz = tzlookup(
+            $426Airports.get_lat(idSrc),
+            $426Airports.get_long(idSrc)
+        );
+
+        if (this.NST.includes(tz)) {
+            zoneSrc = 0.5;
+        } else if (this.AST.includes(tz)) {
+            zoneSrc = 1;
+        } else if (this.EST.includes(tz)) {
+            zoneSrc = 2;
+        } else if (this.CST.includes(tz)) {
+            zoneSrc = 3;
+        } else if (this.MST.includes(tz)) {
+            zoneSrc = 4
+        } else if (this.PST.includes(tz)) {
+            zoneSrc = 5;
+        } else if (this.AKST.includes(tz)) {
+            zoneSrc = 6;
+        } else if (this.HST.includes(tz)) {
+            zoneSrc = 7;
+        } else {
+            console.log(
+                "TZ PANIC: Timezone found does not exist "
+                + "in the lookup arrays."
+            );
+        }
+
+        tz = tzlookup(
+            $426Airports.get_lat(idDest),
+            $426Airports.get_long(idDest)
+        );
+
+        if (this.NST.includes(tz)) {
+            zoneDest = 0.5;
+            suffix = "NST";
+        } else if (this.AST.includes(tz)) {
+            zoneDest = 1;
+            suffix = "AST";
+        } else if (this.EST.includes(tz)) {
+            zoneDest = 2
+            suffix = "EST";
+        } else if (this.CST.includes(tz)) {
+            zoneDest = 3;
+            suffix = "CST";
+        } else if (this.MST.includes(tz)) {
+            zoneDest = 4;
+            suffix = "MST";
+        } else if (this.PST.includes(tz)) {
+            zoneDest = 5;
+            suffix = "PST";
+        } else if (this.AKST.includes(tz)) {
+            zoneDest = 6;
+            suffix = "AKST";
+        } else if (this.HST.includes(tz)) {
+            zoneDest = 7;
+            suffix = "HST";
+        } else {
+            console.log(
+                "TZ PANIC: Timezone found does not exist "
+                + "in the lookup arrays."
+            );
+            console.log(tz);
+        }
+
+        time = time + (zoneDest - zoneSrc) * 60;
+        if (time > 1440) {
+            time %= 1440;
+        } else if (time < 0) {
+            time + 1440;
+        }
+
+        let hour = Math.floor(time / 60);
+        let min = time % 60; 
+
+        if (hour > 12) {
+            return `${hour % 12}:{min}PM ${suffix}`
+        } else {
+            return `${hour}:{min}AM ${suffix}`
+        }
+
+    }
+
+    this.get_depature = (idSrc, time) => {
+
+        let hour = Math.floor(time / 60);
+        let min = time % 60; 
+        let out = undefined;
+
+        if (hour > 12) {
+            out = `${hour % 12}:{min}PM`
+        } else {
+            out = `${hour}:{min}AM`
+        }
+
+        let tz = tzlookup(
+            $426Airports.get_lat(idSrc),
+            $426Airports.get_long(idSrc)
+        ); 
+
+        if (this.NST.includes(tz)) {
+            out = `${out} NST`
+        } else if (this.AST.includes(tz)) {
+            out = `${out} AST` 
+        } else if (this.EST.includes(tz)) {
+            out = `${out} EST` 
+        } else if (this.CST.includes(tz)) {
+            out = `${out} CST` 
+        } else if (this.MST.includes(tz)) {
+            out = `${out} MST` 
+        } else if (this.PST.includes(tz)) {
+            out = `${out} PST` 
+        } else if (this.AKST.includes(tz)) {
+            out = `${out} AKST` 
+        } else if (this.HST.includes(tz)) {
+            out = `${out} HST` 
+        } else {
+            console.log(
+                "TZ PANIC: Timezone found does not exist "
+                + "in the lookup arrays."
+            );
+            console.log(tz);
+        }
+
+        return out;
+
+    }
+
+}
+
 
 // Login in function. Do not call this function.
 let db_login = function() {
@@ -1941,7 +2124,26 @@ let _db_426Airports = function() {
 // Probably should be deleted before launch.
 // Basically just used for testing.
 let _db_on_airport_load = function(obj) {
-        return;
+
+    return;
+
+    let db = []
+
+    for (const airport of Object.keys($426Airports.airports)) {
+
+        let r = tzlookup(
+            $426Airports.get_lat(airport),
+            $426Airports.get_long(airport)
+        );
+        if (!db.includes(r)) {
+            db.push(r);
+        }
+ 
+    }
+
+    console.log(db);
+
+    return
     if ($426Map.get_map() == null) {
         setTimeout(_db_on_airport_load, 500);
     }
