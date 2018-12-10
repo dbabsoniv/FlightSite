@@ -1997,7 +1997,7 @@ var _db_retrieve_by_id = function(id, gate) {
             error: (jqXHR, text, err) => {
                 $426_ajax_handle_error(
                     jqXHR, text, err,
-                    `_db_retrieve_by_id. Gate(${gate}), ID(${id})`
+                    `_db_retrieve_by_id: Gate(${gate}), ID(${id})`
                 )
             },
             type: "GET",
