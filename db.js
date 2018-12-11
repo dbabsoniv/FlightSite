@@ -1758,6 +1758,8 @@ var $426_ajax_handle_error = function(jqXHR, text, err, where) {
  */
 var $426_sanitize = function(s) {
     return s.replace(
+        /&/g, "&amp;"
+    ).replace(
         /</g, "&lt;"
     ).replace(
         />/g, "&gt;"
@@ -1765,9 +1767,19 @@ var $426_sanitize = function(s) {
         /'/g, "&#39;"
     ).replace(
         /"/g, "&quot;"
-    ).replace(
-        /&/g, "&amp;"
     );
+
+    //return s.replace(
+    //    /</g, "&lt;"
+    //).replace(
+    //    />/g, "&gt;"
+    //).replace(
+    //    /'/g, "&#39;"
+    //).replace(
+    //    /"/g, "&quot;"
+    //).replace(
+    //    /&/g, "&amp;"
+    //);
 }
 
 let db_tz = new function() {
