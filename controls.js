@@ -74,6 +74,12 @@ var $426Controls = new function() {
             dsts = $426Airports.get_dests(this.get_src());
         }
 
+        if (source === "src" && !$426Map.get_reverse()) {
+            this.clear_input_dest();
+        } else if (source === "dest" && $426Map.get_reverse()) {
+            this.clear_input_src();
+        }
+
         for (const ident of $426Airports.autocomplete(text)) {
 
             if (dsts != null) {
@@ -203,7 +209,7 @@ var $426Controls = new function() {
 
     // Clears the destination input box.
     this.clear_input_dest = () => {
-        if (this._dest != null && this._dest > 0) {
+        if (this._dest == null || this._dest > 0) {
             $426Map.select_path(null, null, null);
             $("input#controls-airport-dest").val("");
             if ($426Map.get_reverse()) {
@@ -221,7 +227,7 @@ var $426Controls = new function() {
 
     // Clears the source input box.
     this.clear_input_src = () => {
-        if (this._src != null && this._src > 0) {
+        if (this._src == null || this._src > 0) {
             $426Map.select_path(null, null, null);
             $("input#controls-airport-src").val("");
         }
@@ -449,6 +455,8 @@ $(document).ready(() => {
     $("div#controls-dest-container").on(
         "click", "input#controls-airport-dest",
         function(e) {
+            $426FlightsPanel.hide();
+            $426FlightsPanel.clear();
             $426Controls.clear_autocomplete(e);
             $426Controls.clear_input_dest(e);
         }
@@ -457,6 +465,8 @@ $(document).ready(() => {
     $("div#controls-src-container").on(
         "click", "input#controls-airport-src",
         function(e) {
+            $426FlightsPanel.hide();
+            $426FlightsPanel.clear();
             $426Controls.clear_autocomplete(e);
             $426Controls.clear_input_src(e);
         }
