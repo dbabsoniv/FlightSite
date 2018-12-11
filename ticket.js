@@ -337,7 +337,7 @@ var $426TicketPanel= new function() {
             `<div>`
             + `<input id="ticket-sal" type="text" maxlength="11" `
             + `autocomplete="off" `
-            + `placeholder="Salutations"><input id="ticket-first"`
+            + `placeholder="Honorific"><input id="ticket-first"`
             + `autocomplete="off" `
             + `type="text" maxlength="512" placeholder="First Name">`
             + `</div><div><input id="ticket-middle" maxlength="512" `
