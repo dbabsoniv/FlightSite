@@ -19,8 +19,10 @@ div#blank {
     text-align: center;
     top: 0px;
     transition-property: opacity;
-    transition-duration: 3000ms;
+    transition-duration: 2500ms;
     width: 100%;
+    user-select: none;
+    -moz-user-select: -moz-none;
     z-index: 99;
 }
 div#blank.hide {
@@ -218,6 +220,8 @@ div#ticket-buttons {
     display: flex;
     justify-content: space-evenly;
     text-align: center;
+    user-select: none;
+    -moz-user-select: -moz-none;
 }
 div#ticket-buttons > div {
     background: #F1F1F1;
