@@ -1,5 +1,5 @@
 // CONTROLS.JS //
-$426Controls = new function() {
+var $426Controls = new function() {
 
     //FIXME REPIII doesn't like the behavior of the autocomplete
     //FIXME before the first AJAX call returns. I'm not entirely sure

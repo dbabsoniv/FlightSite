@@ -1,5 +1,5 @@
 // MAP.JS //
-$426Map = new function() {
+var $426Map = new function() {
 
     // There are no plans of making getters and setters for markers
     // and popups. They should never be publicly referenced.
@@ -594,8 +594,6 @@ $426Map = new function() {
             // not null.
             $426Controls.clear_autocomplete();
 
-            ret = true;
-
         } else if (
             typeof(idDest) !== "number"
             || typeof(idSrc) !== "number"
@@ -634,8 +632,8 @@ $426Map = new function() {
 
             }
 
-            console.log(idSrc);
-            console.log(idDest);
+            //console.log(idSrc);
+            //console.log(idDest);
             $426FlightsPanel.fill_with(idDest, idSrc);
 
             return true;

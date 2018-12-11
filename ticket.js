@@ -1,5 +1,5 @@
 // TICKET.JS //
-$426TicketPanel= new function() {
+var $426TicketPanel= new function() {
 
     this._code = null;
     this._flight = null;
@@ -57,7 +57,7 @@ $426TicketPanel= new function() {
 
         this.hide();
         $426Map.reset();
-        this.clear();
+        setTimeout(this.clear, 2000);
 
     }
 
@@ -117,10 +117,6 @@ $426TicketPanel= new function() {
             ret = false;
         }
 
-        if (ret === false) {
-            return false;
-        }
-
         let r = $426Instance.create(
             // FIXME Currently not supporting seats.
             date, this._flight, "", (insta) => {
@@ -153,7 +149,7 @@ $426TicketPanel= new function() {
                         $("input#ticket-date").removeClass("illegal");
                     }, 2000
                 );
-                return -5;
+                ret = false;
     
             } else { 
 
@@ -166,6 +162,10 @@ $426TicketPanel= new function() {
                 return r;
 
             }
+        }
+
+        if (ret === false) {
+            return false;
         }
 
         let itinerary_create = (email) => {
@@ -285,6 +285,7 @@ $426TicketPanel= new function() {
                     month = 3;
                 }
                 break;
+
             case 1:
             case 3:
             case 5:
@@ -324,7 +325,7 @@ $426TicketPanel= new function() {
             `<p>${number}</p><p>${codeSrc} ⇒ ${codeDest}</p>`
         );
 
-        out = (
+        let out = (
             `<div>`
             + `<input id="ticket-sal" type="text" maxlength="11" `
             + `autocomplete="off" `

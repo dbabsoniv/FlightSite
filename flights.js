@@ -1,5 +1,5 @@
 // FLIGHTS.JS //
-$426FlightsPanel = new function() {
+var $426FlightsPanel = new function() {
 
     this.clear = () => {
         $("div#flights").html("");

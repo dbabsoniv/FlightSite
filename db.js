@@ -32,12 +32,12 @@
 // or flight code, use some other terminology (like "code").
 
 
-$426_ROOT_URL = "http://comp426.cs.unc.edu:3001/"
+var $426_ROOT_URL = "http://comp426.cs.unc.edu:3001/"
 
 
 // This is a next level of silly, but the JS throws an error on load
 // if you don't set it to *something*.
-$426Airports = undefined;
+var $426Airports = undefined;
 
 /*
  *  Airline object
@@ -47,7 +47,7 @@ $426Airports = undefined;
  *  oData   : Database data as a JavaScript object.
  *            oData is NOT a string.
  */
-$426Airline = function(oData) {
+var $426Airline = function(oData) {
 
     // Gets this airline's ID, an integer.
     this.get_id = () => { return oData["id"]; }
@@ -71,7 +71,7 @@ $426Airline.retrieve_by_id = function(id) {
  *  oData   : Database data as a JavaScript object.
  *            oData is NOT a string.
  */
-$426Flight = function(oData) {
+var $426Flight = function(oData) {
 
     // Gets the airline ID of this flight, a number (integer).
     this.get_airline_id = () => { 
@@ -342,7 +342,7 @@ $426Flight.time_string_to_raw = function(time) {
  *  oData   : Database data as a JavaScript object.
  *            oData is NOT a string.
  */
-$426Instance = function(oData) {
+var $426Instance = function(oData) {
 
     oData["info"] = JSON.parse(oData["info"]);
     if (oData["info"] === null) {
@@ -845,7 +845,7 @@ $426Instance.retrieve_by_flight_id_and_date = function(idFlight, date, func) {
  *  oData   : Database data as a JavaScript object.
  *            oData is NOT a string.
  */
-$426Itinerary = function(oData) {
+var $426Itinerary = function(oData) {
 
     // Gets the confirmation code of this itinerary, a string.
     this.get_code = () => { return oData["confirmation_code"]; }
@@ -1199,7 +1199,7 @@ $426Itinerary.retrieve_by_id = function(id) {
  *  oData   : Database data as a JavaScript object.
  *            oData is NOT a string.
  */
-$426Plane = function(oData) {
+var $426Plane = function(oData) {
 
     oData["info"] = JSON.parse(oData["info"]);
 
@@ -1247,7 +1247,7 @@ $426Plane.retrieve_by_id = function(id) {
  *  oData   : Database data as a JavaScript object.
  *            oData is NOT a string.
  */
-$426Ticket = function(oData) {
+var $426Ticket = function(oData) {
 
     // Gets the age of the ticket holder, a number (integer).
     this.get_age = () => { return oData["age"]; }
@@ -1727,7 +1727,7 @@ $426Ticket.retrieve_by_itinerary_id = function(id, func) {
  *  for a better understand of the parameters that should be passed
  *  to this function
  */
-$426_ajax_handle_error = function(jqXHR, text, err, where) {
+var $426_ajax_handle_error = function(jqXHR, text, err, where) {
 
     //alert("PANIC: AJAX Failure. See logs.")
     console.log(`AJAX Failure: ${where}`);
@@ -1756,7 +1756,7 @@ $426_ajax_handle_error = function(jqXHR, text, err, where) {
  *  This function can and should be used everywhere, not just in the
  *  DB interface.
  */
-$426_sanitize = function(s) {
+var $426_sanitize = function(s) {
     return s.replace(
         /</g, "&lt;"
     ).replace(
@@ -2159,7 +2159,7 @@ let _db_426Airports = function() {
                 $("div#blank").addClass("hide");
                 setTimeout(function() {
                     $("div#blank").addClass("hidden")
-                    }, 1000
+                    }, 2500
                 );
 
                 //_db_on_airport_load();
