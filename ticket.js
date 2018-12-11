@@ -410,17 +410,6 @@ $(document).ready(() => {
     });
 
     return;
-    $426TicketPanel.show_ticket(
-        "ATL",
-        "CLT",
-        660556,
-        "DAL 500",
-        100,
-        123.45
-    );
-
-
-    return;
 
     //recieve airport codes for start (1) and destination (2)
     portCode1 = "ATL";
