@@ -263,6 +263,57 @@ $426TicketPanel= new function() {
         div.addClass("ticket-information");
         let now = new Date();
 
+        let day = now.getDate() + 1;
+        let month = now.getMonth() + 1;
+        let year = now.getFullYear();
+
+        switch (month) {
+
+            case 2:
+
+                if (
+                    day > 29 ||
+                    (day > 28 && year % 4 === 0)
+                ) {
+                    day = 1;
+                    month = 3;
+                }
+                break;
+            case 1:
+            case 3:
+            case 5:
+            case 7:
+            case 8:
+            case 10:
+            case 12:
+
+                if (day > 31) {
+                    day = 1;
+                    month += 1;
+                }
+                break;
+
+            case 4:
+            case 6:
+            case 9:
+            case 11:
+
+                if (day > 30) {
+                    day = 1;
+                    month += 1;
+                }
+                break;
+
+            default:
+
+        }
+
+        if (month > 12) {
+            day = 1;
+            month = 1;
+            year += 1;
+        }      
+            
         $("div#ticket-where").html(
             `<p>${number}</p><p>${codeSrc} ⇒ ${codeDest}</p>`
         );
@@ -282,8 +333,7 @@ $426TicketPanel= new function() {
             + `<input id="ticket-suffix" autocomplete="off"`
             + `maxlength="10" placeholder="Suffix" type="text"></div>`
             + `<div><p>Depature&nbsp;Date</p><input id="ticket-date" `
-            + `type="date" value="${now.getFullYear()}-`
-            + `${now.getMonth()+1}-${now.getDate()}" min="`
+            + `type="date" value="${year}-${month}-${day}" min="`
             + `${now.getFullYear()}-${now.getMonth()+1}-`
             + `${now.getDate()}" max="${now.getFullYear()+1}-`
             + `${now.getMonth()+1}-${now.getDate()}">`
