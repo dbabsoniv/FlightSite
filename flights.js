@@ -1,8 +1,13 @@
 // FLIGHTS.JS //
 var $426FlightsPanel = new function() {
 
+    this._dest = null;
+    this._src = null; 
+
     this.clear = () => {
         $("div#flights").html("");
+        this._dest = null;
+        this._src = null;
     }
 
     this.fill_objs = (flight) => {
@@ -20,6 +25,13 @@ var $426FlightsPanel = new function() {
             console.log("PANIC $426FlightsPanel Error");
             console.log(flight); 
             return flight;
+
+        } else if (
+            flight.get_arrival_id() != this._dest
+            || flight.get_departure_id() != this._src
+        ) {
+
+            return;
 
         } else {
 
@@ -129,6 +141,10 @@ var $426FlightsPanel = new function() {
     this.fill_with = (idDest, idSrc) => {
 
         if (typeof(idDest) === "number" && typeof(idSrc) === "number") {
+
+            this.clear();
+            this._dest = idDest;
+            this._src = idSrc;
 
             let r = $426Flight.retrieve_flights(
                 idDest, idSrc, $426FlightsPanel.fill_objs
