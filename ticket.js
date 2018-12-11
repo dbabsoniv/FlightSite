@@ -79,6 +79,8 @@ $426TicketPanel= new function() {
         let sal = $426_sanitize($("input#ticket-sal").val());
         let suffix = $426_sanitize($("input#ticket-suffix").val());
 
+        let ret = true;
+
         if (
             email === ""
             || email.search(/^[a-zA-Z0-9!#$%&'*+\-/=?^_`{|}~.]+@[a-zA-Z0-9.]+\.[a-zA-Z0-9]+$/) < 0
@@ -88,7 +90,7 @@ $426TicketPanel= new function() {
                     $("input#ticket-email").removeClass("illegal");
                 }, 1500
             );
-            return -1;
+            ret = false;
         }
         if (gender === "") {
             $("input#ticket-gender").addClass("illegal")
@@ -96,23 +98,27 @@ $426TicketPanel= new function() {
                     $("input#ticket-gender").removeClass("illegal");
                 }, 1500
             );
-            return -2;
+            ret = false;
         }
         if (nameFirst === "") {
             $("input#ticket-first").addClass("illegal")
             setTimeout(function() {
                     $("input#ticket-first").removeClass("illegal");
-                }, 2000
+                }, 1500
             );
-            return -3;
+            ret = false;
         }
         if (nameLast === "") {
             $("input#ticket-last").addClass("illegal")
             setTimeout(function() {
                     $("input#ticket-last").removeClass("illegal");
-                }, 2000
+                }, 1500
             );
-            return -4;
+            ret = false;
+        }
+
+        if (ret === false) {
+            return false;
         }
 
         let r = $426Instance.create(
@@ -247,7 +253,7 @@ $426TicketPanel= new function() {
 
         }
 
-        return true;
+        return ret;
 
     }
 
