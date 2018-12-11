@@ -2,6 +2,7 @@
 var $426TicketPanel= new function() {
 
     this._code = null;
+    this._creating = false;
     this._flight = null;
     this._instance = null;
     this._itinerary = null;
@@ -41,6 +42,7 @@ var $426TicketPanel= new function() {
 
     this.confirmation = () => {
 
+        this._creating = false;
         this._step = 3;
         let div = $("div#ticket-content");
 
@@ -68,6 +70,10 @@ var $426TicketPanel= new function() {
     }
 
     this.input_information = () => {
+
+        if (this._creating) {
+            return -1;
+        }
          
         let age = +$("select#ticket-age").val();
         let date = $426_sanitize($("input#ticket-date").val());
@@ -167,6 +173,8 @@ var $426TicketPanel= new function() {
         if (ret === false) {
             return false;
         }
+
+        this._creating = true;
 
         let itinerary_create = (email) => {
 

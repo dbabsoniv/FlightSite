@@ -1452,6 +1452,8 @@ $426Ticket.create = function(
     func,
 ) {
 
+    //console.log(`Ticket create price: ${price}`);
+
     //FIXME Currently not supporting seats.
     seat = "";
 
@@ -1513,6 +1515,7 @@ $426Ticket.create = function(
                 first_name: `${nameSal} ${nameFirst}`,
                 middle_name: nameMiddle,
                 last_name: `${nameLast} ${nameSuffix}`,
+                price_paid: parseFloat(price),
                 seat_id: 3,
             } 
 
@@ -2204,8 +2207,6 @@ let _db_on_airport_load = function(obj) {
         }
  
     }
-
-    console.log(db);
 
     return
     if ($426Map.get_map() == null) {
