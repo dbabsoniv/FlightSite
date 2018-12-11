@@ -19,7 +19,7 @@ div#blank {
     text-align: center;
     top: 0px;
     transition-property: opacity;
-    transition-duration: 1000ms;
+    transition-duration: 3000ms;
     width: 100%;
     z-index: 99;
 }
